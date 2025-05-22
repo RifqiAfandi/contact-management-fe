@@ -4,6 +4,7 @@ import {
   Route,
   Routes,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
@@ -11,11 +12,15 @@ import "./App.css";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
 
-function App() {
+function AppContent() {
   const [count, setCount] = useState(0);
+  const location = useLocation();
+
+  // Don't apply container styling for admin dashboard
+  const isAdminRoute = location.pathname === "/admin";
 
   return (
-    <Router>
+    <div className={isAdminRoute ? "" : "app-default"}>
       <Routes>
         <Route
           path="/"
@@ -49,6 +54,14 @@ function App() {
           }
         />
       </Routes>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
