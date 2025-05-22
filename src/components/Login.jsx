@@ -88,8 +88,14 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
 
         console.log("Login successful!", user);
 
-        // Redirect to admin dashboard
-        navigate("/admin");
+        // Redirect based on user role
+        if (user.role === "admin") {
+          navigate("/admin");
+        } else if (user.role === "user") {
+          navigate("/kasir");
+        } else {
+          throw new Error("Unauthorized role");
+        }
       } else {
         throw new Error(data.message || "Login failed");
       }

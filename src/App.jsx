@@ -6,11 +6,10 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
+import Kasir from "./components/Kasir";
 
 function AppContent() {
   const [count, setCount] = useState(0);
@@ -38,6 +37,10 @@ function AppContent() {
         <Route
           path="/admin"
           element={<AdminDashboard />}
+        />
+        <Route
+          path="/kasir"
+          element={<Kasir />}
         />
         <Route
           path="/dashboard"
