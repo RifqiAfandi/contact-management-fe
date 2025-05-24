@@ -215,6 +215,10 @@ const InventoryManagement = () => {
     );
   });
 
+  if (!inventories.length) {
+    return <div className="empty-state">Tidak ada item tersedia di inventaris.</div>;
+  }
+
   return (
     <div className="inventory-container">
       <div className="header">
@@ -309,9 +313,17 @@ const InventoryManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredInventories.map((item) => (
-                <TableRow key={item.id} item={item} />
-              ))}
+              {filteredInventories.length > 0 ? (
+                filteredInventories.map((item) => (
+                  <TableRow key={item.id} item={item} />
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="no-data">
+                    Tidak ada data inventaris yang cocok.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

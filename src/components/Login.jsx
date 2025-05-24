@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const BACKEND_URL = "http://localhost:3000"; // Replace with your backend URL
+// Ensure BACKEND_URL is valid
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000"; // Use environment variable if available
 
 const Login = ({ onLogin, onSwitchToRegister }) => {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
     }
 
     setIsLoading(true);
+    setErrors({});
 
     // Simulate API call
     try {
@@ -71,7 +73,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid username or password");
+        throw new Error("Login failed. Please check your credentials.");
       }
 
       const data = await response.json();
