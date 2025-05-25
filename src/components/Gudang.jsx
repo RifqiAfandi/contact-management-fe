@@ -1,104 +1,184 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import debounce from 'lodash.debounce';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  AlertTriangle,
-  Calendar,
-  DollarSign,
-  TrendingUp,
-  Eye
-} from 'lucide-react';
-import './Gudang.css';
+import React, { useState, useEffect } from "react";
+import "./Gudang.css";
 
-const InventoryManagement = () => {
-  const [inventories, setInventories] = useState([
+const WarehousePage = () => {
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("entryDate");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    itemName: "",
+    purchasePrice: "",
+    expiredDate: "",
+    entryDate: "",
+    imageFile: null,
+  });
+
+  // Mock data for demonstration
+  const mockData = [
     {
       id: 1,
-      itemName: "Laptop ASUS ROG",
-      itemUrl: "https://example.com/laptop.jpg",
+      itemName: "Laptop Dell XPS 13",
       purchasePrice: 15000000,
       expiredDate: "2025-12-31",
       entryDate: "2024-01-15",
-      createdAt: "2024-01-15",
-      updatedAt: "2024-01-15"
+      itemUrl: "https://via.placeholder.com/150",
     },
     {
       id: 2,
-      itemName: "Mouse Logitech MX",
-      itemUrl: "https://example.com/mouse.jpg",
-      purchasePrice: 850000,
-      expiredDate: "2026-06-30",
+      itemName: "Mouse Wireless Logitech",
+      purchasePrice: 250000,
+      expiredDate: "2024-08-15",
       entryDate: "2024-02-10",
-      createdAt: "2024-02-10",
-      updatedAt: "2024-02-10"
+      itemUrl: "https://via.placeholder.com/150",
     },
     {
       id: 3,
       itemName: "Keyboard Mechanical",
-      itemUrl: "https://example.com/keyboard.jpg",
-      purchasePrice: 1200000,
-      expiredDate: "2025-08-15",
-      entryDate: "2024-01-20",
-      createdAt: "2024-01-20",
-      updatedAt: "2024-01-20"
-    }
-  ]);
+      purchasePrice: 750000,
+      expiredDate: "2026-03-20",
+      entryDate: "2024-03-05",
+      itemUrl: "https://via.placeholder.com/150",
+    },
+  ];
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({
-    itemName: '',
-    itemUrl: '',
-    purchasePrice: '',
-    expiredDate: '',
-    entryDate: ''
-  });
-
-  // Debounce search input
   useEffect(() => {
-    const handler = debounce(() => setDebouncedSearchTerm(searchTerm), 300);
-    handler();
-    return () => handler.cancel();
-  }, [searchTerm]);
+    // Simulate API call
+    setInventoryItems(mockData);
+    setFilteredItems(mockData);
+  }, []);
 
-  const filteredInventories = useMemo(() => {
-    return inventories.filter(item =>
-      item.itemName.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm, inventoryItems, sortBy, sortOrder]);
+
+  const handleSearch = () => {
+    let filtered = inventoryItems.filter((item) =>
+      item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [inventories, debouncedSearchTerm]);
 
-  const totalValue = useMemo(() => {
-    return inventories.reduce((sum, item) => sum + item.purchasePrice, 0);
-  }, [inventories]);
+    // Sort items
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
 
-  const expiringSoon = useMemo(() => {
-    return inventories.filter(item => {
-      const status = getExpiryStatus(item.expiredDate);
-      return status.status === 'warning' || status.status === 'expired';
-    }).length;
-  }, [inventories]);
+      if (sortBy === "purchasePrice") {
+        aValue = parseInt(aValue);
+        bValue = parseInt(bValue);
+      } else if (sortBy === "expiredDate" || sortBy === "entryDate") {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredItems(filtered);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "imageFile") {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const newItem = {
+        id: editingItem ? editingItem.id : Date.now(),
+        ...formData,
+        purchasePrice: parseInt(formData.purchasePrice),
+        itemUrl: formData.imageFile
+          ? URL.createObjectURL(formData.imageFile)
+          : "https://via.placeholder.com/150",
+      };
+
+      if (editingItem) {
+        // Update existing item
+        const updatedItems = inventoryItems.map((item) =>
+          item.id === editingItem.id ? newItem : item
+        );
+        setInventoryItems(updatedItems);
+      } else {
+        // Add new item
+        setInventoryItems((prev) => [...prev, newItem]);
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving item:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setFormData({
+      itemName: item.itemName,
+      purchasePrice: item.purchasePrice.toString(),
+      expiredDate: item.expiredDate,
+      entryDate: item.entryDate,
+      imageFile: null,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const updatedItems = inventoryItems.filter((item) => item.id !== id);
+        setInventoryItems(updatedItems);
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingItem(null);
+    setFormData({
+      itemName: "",
+      purchasePrice: "",
+      expiredDate: "",
+      entryDate: "",
+      imageFile: null,
+    });
+  };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return new Date(dateString).toLocaleDateString("id-ID");
   };
 
   const getExpiryStatus = (expiredDate) => {
@@ -107,308 +187,344 @@ const InventoryManagement = () => {
     const diffTime = expiry - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return { status: 'expired', text: 'Kadaluarsa', class: 'status-expired' };
-    if (diffDays <= 30) return { status: 'warning', text: `${diffDays} hari lagi`, class: 'status-warning' };
-    return { status: 'good', text: 'Normal', class: 'status-good' };
+    if (diffDays < 0) return "expired";
+    if (diffDays <= 30) return "warning";
+    return "normal";
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (editingItem) {
-      setInventories(inventories.map(item =>
-        item.id === editingItem.id
-          ? { ...item, ...formData, updatedAt: new Date().toISOString() }
-          : item
-      ));
-    } else {
-      const newItem = {
-        id: Date.now(),
-        ...formData,
-        purchasePrice: parseInt(formData.purchasePrice),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      setInventories([...inventories, newItem]);
-    }
-
-    setShowModal(false);
-    setEditingItem(null);
-    setFormData({
-      itemName: '',
-      itemUrl: '',
-      purchasePrice: '',
-      expiredDate: '',
-      entryDate: ''
-    });
+  const renderIcon = (iconName) => {
+    const icons = {
+      plus: "➕",
+      search: "🔍",
+      sort: "🔄",
+      edit: "✏️",
+      delete: "🗑️",
+      close: "✕",
+      save: "💾",
+      calendar: "📅",
+      money: "💰",
+      package: "📦",
+    };
+    return <span className="icon">{icons[iconName] || "•"}</span>;
   };
-
-  const handleEdit = useCallback((item) => {
-    setEditingItem(item);
-    setFormData({
-      itemName: item.itemName,
-      itemUrl: item.itemUrl,
-      purchasePrice: item.purchasePrice.toString(),
-      expiredDate: item.expiredDate,
-      entryDate: item.entryDate
-    });
-    setShowModal(true);
-  }, []);
-
-  const handleDelete = useCallback((id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus item ini?')) {
-      setInventories(prevInventories => prevInventories.filter(item => item.id !== id));
-    }
-  }, []);
-
-  const TableRow = React.memo(({ item }) => {
-    const expiryStatus = getExpiryStatus(item.expiredDate);
-    return (
-      <tr key={item.id}>
-        <td>#{item.id}</td>
-        <td>
-          <div className="item-image">
-            <img 
-              src={item.itemUrl || '/api/placeholder/60/60'} 
-              alt={item.itemName}
-              loading="lazy" // Lazy load images
-              onError={(e) => {
-                e.target.src = '/api/placeholder/60/60';
-              }}
-            />
-          </div>
-        </td>
-        <td className="item-name">{item.itemName}</td>
-        <td className="price">{formatCurrency(item.purchasePrice)}</td>
-        <td>{formatDate(item.entryDate)}</td>
-        <td>{formatDate(item.expiredDate)}</td>
-        <td>
-          <span className={`status ${expiryStatus.class}`}>
-            {expiryStatus.text}
-          </span>
-        </td>
-        <td>
-          <div className="action-buttons">
-            <button 
-              className="btn-action view"
-              title="Lihat Detail"
-            >
-              <Eye size={16} />
-            </button>
-            <button 
-              className="btn-action edit"
-              onClick={() => handleEdit(item)}
-              title="Edit"
-            >
-              <Edit size={16} />
-            </button>
-            <button 
-              className="btn-action delete"
-              onClick={() => handleDelete(item.id)}
-              title="Hapus"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        </td>
-      </tr>
-    );
-  });
-
-  if (!inventories.length) {
-    return <div className="empty-state">Tidak ada item tersedia di inventaris.</div>;
-  }
 
   return (
-    <div className="inventory-container">
-      <div className="header">
+    <div className="warehouse-page">
+      {/* Header Section */}
+      <div className="warehouse-header">
         <div className="header-content">
-          <div className="header-text">
-            <h1><Package className="header-icon" />Manajemen Stok Inventory</h1>
-            <p>Kelola dan pantau stok barang dengan mudah dan efisien</p>
+          <div className="header-title-section">
+            <h1 className="page-title">📦 Manajemen Gudang</h1>
+            <p className="page-subtitle">
+              Kelola inventori dan stok barang dengan mudah
+            </p>
           </div>
-          <button 
-            className="btn-primary"
-            onClick={() => setShowModal(true)}
+          <button
+            className="add-button"
+            onClick={() => setIsModalOpen(true)}
           >
-            <Plus size={20} />
-            Tambah Item
+            {renderIcon("plus")}
+            Tambah Barang
           </button>
         </div>
       </div>
 
+      {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon total">
-            <Package size={32} />
-          </div>
-          <div className="stat-info">
-            <h3>{inventories.length}</h3>
-            <p>Total Item</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon value">
-            <DollarSign size={32} />
-          </div>
-          <div className="stat-info">
-            <h3>{formatCurrency(totalValue)}</h3>
-            <p>Total Nilai</p>
+          <div className="card-content">
+            <div className="card-info">
+              <h3 className="card-title">Total Barang</h3>
+              <p className="card-value">{inventoryItems.length}</p>
+            </div>
+            <div className="card-icon icon-blue">{renderIcon("package")}</div>
           </div>
         </div>
-
         <div className="stat-card">
-          <div className="stat-icon warning">
-            <AlertTriangle size={32} />
-          </div>
-          <div className="stat-info">
-            <h3>{expiringSoon}</h3>
-            <p>Segera Kadaluarsa</p>
+          <div className="card-content">
+            <div className="card-info">
+              <h3 className="card-title">Akan Expired</h3>
+              <p className="card-value">
+                {
+                  inventoryItems.filter(
+                    (item) => getExpiryStatus(item.expiredDate) === "warning"
+                  ).length
+                }
+              </p>
+            </div>
+            <div className="card-icon icon-orange">
+              {renderIcon("calendar")}
+            </div>
           </div>
         </div>
-
         <div className="stat-card">
-          <div className="stat-icon trend">
-            <TrendingUp size={32} />
-          </div>
-          <div className="stat-info">
-            <h3>+12%</h3>
-            <p>Pertumbuhan Bulan Ini</p>
+          <div className="card-content">
+            <div className="card-info">
+              <h3 className="card-title">Total Nilai</h3>
+              <p className="card-value">
+                {formatCurrency(
+                  inventoryItems.reduce(
+                    (sum, item) => sum + item.purchasePrice,
+                    0
+                  )
+                )}
+              </p>
+            </div>
+            <div className="card-icon icon-green">{renderIcon("money")}</div>
           </div>
         </div>
       </div>
 
-      <div className="inventory-table-container">
-        <div className="table-header">
-          <div className="search-filter">
-            <div className="search-box">
-              <Search size={20} />
-              <input
-                type="text"
-                placeholder="Cari nama item..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <button className="filter-btn">
-              <Filter size={20} />
-              Filter
+      {/* Controls Section */}
+      <div className="controls-section">
+        <div className="search-box">
+          {renderIcon("search")}
+          <input
+            type="text"
+            placeholder="Cari nama barang..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        <div className="sort-controls">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="sort-select"
+          >
+            <option value="entryDate">Tanggal Masuk</option>
+            <option value="expiredDate">Tanggal Expired</option>
+            <option value="itemName">Nama Barang</option>
+            <option value="purchasePrice">Harga Beli</option>
+          </select>
+
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="sort-order-btn"
+          >
+            {renderIcon("sort")}
+            {sortOrder === "asc" ? "A-Z" : "Z-A"}
+          </button>
+        </div>
+      </div>
+
+      {/* Inventory Grid */}
+      <div className="inventory-grid">
+        {isLoading && filteredItems.length === 0 ? (
+          <div className="loading-state">
+            <p>Memuat data...</p>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="empty-state">
+            <p>Tidak ada barang yang ditemukan</p>
+            <button
+              className="add-button"
+              onClick={() => setIsModalOpen(true)}
+            >
+              {renderIcon("plus")}
+              Tambah Barang Pertama
             </button>
           </div>
-        </div>
+        ) : (
+          filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className="inventory-card"
+            >
+              <div className="card-image">
+                <img
+                  src={item.itemUrl}
+                  alt={item.itemName}
+                />
+                <div
+                  className={`expiry-badge ${getExpiryStatus(
+                    item.expiredDate
+                  )}`}
+                >
+                  {getExpiryStatus(item.expiredDate) === "expired" && "Expired"}
+                  {getExpiryStatus(item.expiredDate) === "warning" &&
+                    "Segera Expired"}
+                  {getExpiryStatus(item.expiredDate) === "normal" && "Normal"}
+                </div>
+              </div>
 
-        <div className="table-wrapper">
-          <table className="inventory-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Gambar</th>
-                <th>Nama Item</th>
-                <th>Harga Beli</th>
-                <th>Tanggal Masuk</th>
-                <th>Tanggal Kadaluarsa</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredInventories.length > 0 ? (
-                filteredInventories.map((item) => (
-                  <TableRow key={item.id} item={item} />
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="no-data">
-                    Tidak ada data inventaris yang cocok.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              <div className="card-content">
+                <h3 className="item-name">{item.itemName}</h3>
+                <div className="item-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Harga Beli:</span>
+                    <span className="detail-value">
+                      {formatCurrency(item.purchasePrice)}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Tanggal Masuk:</span>
+                    <span className="detail-value">
+                      {formatDate(item.entryDate)}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Expired:</span>
+                    <span className="detail-value">
+                      {formatDate(item.expiredDate)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="card-actions">
+                  <button
+                    className="action-btn edit-btn"
+                    onClick={() => handleEdit(item)}
+                  >
+                    {renderIcon("edit")}
+                    Edit
+                  </button>
+                  <button
+                    className="action-btn delete-btn"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    {renderIcon("delete")}
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
-      {showModal && (
+      {/* Modal */}
+      {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal-content">
             <div className="modal-header">
-              <h2>{editingItem ? 'Edit Item' : 'Tambah Item Baru'}</h2>
-              <button 
+              <h2 className="modal-title">
+                {editingItem ? "Edit Barang" : "Tambah Barang Baru"}
+              </h2>
+              <button
                 className="close-btn"
-                onClick={() => {
-                  setShowModal(false);
-                  setEditingItem(null);
-                  setFormData({
-                    itemName: '',
-                    itemUrl: '',
-                    purchasePrice: '',
-                    expiredDate: '',
-                    entryDate: ''
-                  });
-                }}
+                onClick={handleCloseModal}
               >
-                ×
+                {renderIcon("close")}
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
+
+            <form
+              onSubmit={handleSubmit}
+              className="modal-form"
+            >
               <div className="form-group">
-                <label>Nama Item</label>
+                <label
+                  htmlFor="itemName"
+                  className="form-label"
+                >
+                  Nama Barang
+                </label>
                 <input
                   type="text"
+                  id="itemName"
+                  name="itemName"
                   value={formData.itemName}
-                  onChange={(e) => setFormData({...formData, itemName: e.target.value})}
+                  onChange={handleInputChange}
+                  className="form-input"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>URL Gambar</label>
-                <input
-                  type="url"
-                  value={formData.itemUrl}
-                  onChange={(e) => setFormData({...formData, itemUrl: e.target.value})}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Harga Beli (IDR)</label>
+                <label
+                  htmlFor="purchasePrice"
+                  className="form-label"
+                >
+                  Harga Beli (Rp)
+                </label>
                 <input
                   type="number"
+                  id="purchasePrice"
+                  name="purchasePrice"
                   value={formData.purchasePrice}
-                  onChange={(e) => setFormData({...formData, purchasePrice: e.target.value})}
+                  onChange={handleInputChange}
+                  className="form-input"
                   required
                 />
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Tanggal Masuk</label>
+                  <label
+                    htmlFor="entryDate"
+                    className="form-label"
+                  >
+                    Tanggal Masuk
+                  </label>
                   <input
                     type="date"
+                    id="entryDate"
+                    name="entryDate"
                     value={formData.entryDate}
-                    onChange={(e) => setFormData({...formData, entryDate: e.target.value})}
+                    onChange={handleInputChange}
+                    className="form-input"
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Tanggal Kadaluarsa</label>
+                  <label
+                    htmlFor="expiredDate"
+                    className="form-label"
+                  >
+                    Tanggal Expired
+                  </label>
                   <input
                     type="date"
+                    id="expiredDate"
+                    name="expiredDate"
                     value={formData.expiredDate}
-                    onChange={(e) => setFormData({...formData, expiredDate: e.target.value})}
+                    onChange={handleInputChange}
+                    className="form-input"
                     required
                   />
                 </div>
               </div>
 
+              <div className="form-group">
+                <label
+                  htmlFor="imageFile"
+                  className="form-label"
+                >
+                  Gambar Barang
+                </label>
+                <input
+                  type="file"
+                  id="imageFile"
+                  name="imageFile"
+                  onChange={handleInputChange}
+                  className="form-input file-input"
+                  accept="image/*"
+                />
+              </div>
+
               <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={handleCloseModal}
+                >
                   Batal
                 </button>
-                <button type="submit" className="btn-primary">
-                  {editingItem ? 'Update' : 'Simpan'}
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  {renderIcon("save")}
+                  {isLoading
+                    ? "Menyimpan..."
+                    : editingItem
+                    ? "Update"
+                    : "Simpan"}
                 </button>
               </div>
             </form>
@@ -419,4 +535,4 @@ const InventoryManagement = () => {
   );
 };
 
-export default InventoryManagement;
+export default WarehousePage;

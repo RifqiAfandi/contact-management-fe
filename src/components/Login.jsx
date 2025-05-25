@@ -1,11 +1,58 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import { motion } from "framer-motion";
+import {
+  Box,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Typography,
+  Paper,
+  Container,
+  Checkbox,
+  FormControlLabel,
+  Alert,
+  CircularProgress,
+  useTheme,
+  alpha,
+} from "@mui/material";
+import {
+  Visibility,
+  VisibilityOff,
+  PersonOutline,
+  LockOutlined,
+} from "@mui/icons-material";
 
 // Ensure BACKEND_URL is valid
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000"; // Use environment variable if available
+const BACKEND_URL = "http://localhost:3000"; // Use environment variable if available
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+};
 
 const Login = ({ onLogin, onSwitchToRegister }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
@@ -114,194 +161,331 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
     setShowPassword((prev) => !prev);
   };
 
+  // Create dynamic background elements
+  const backgroundElements = Array.from({ length: 15 }, (_, i) => (
+    <Box
+      key={i}
+      component={motion.div}
+      sx={{
+        position: "absolute",
+        width: `${Math.random() * 150 + 20}px`,
+        height: `${Math.random() * 150 + 20}px`,
+        borderRadius: "50%",
+        background: alpha(theme.palette.primary.main, 0.05 + Math.random() * 0.1),
+        backdropFilter: "blur(4px)",
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        zIndex: 0,
+      }}
+      animate={{
+        x: [0, Math.random() * 40 - 20],
+        y: [0, Math.random() * 40 - 20],
+        scale: [1, Math.random() * 0.3 + 0.8],
+      }}
+      transition={{
+        repeat: Infinity,
+        repeatType: "reverse",
+        duration: Math.random() * 5 + 10,
+      }}
+    />
+  ));
+
   return (
-    <div className="login-container">
-      <div className="login-background">
-        <div className="floating-shapes">
-          <div className="shape shape-1"></div>
-          <div className="shape shape-2"></div>
-          <div className="shape shape-3"></div>
-          <div className="shape shape-4"></div>
-        </div>
-      </div>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        position: "relative",
+        backgroundColor: alpha(theme.palette.primary.light, 0.02),
+      }}
+    >
+      {/* Dynamic background */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          zIndex: 0,
+        }}
+      >
+        {backgroundElements}
+      </Box>
 
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-icon">
-            <div className="icon-circle">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle
-                  cx="12"
-                  cy="7"
-                  r="4"
-                ></circle>
-              </svg>
-            </div>
-          </div>
-          <h1 className="login-title">Welcome Back</h1>
-          <p className="login-subtitle">Please sign in to your account</p>
-        </div>
-
-        <form
-          className="login-form"
-          onSubmit={handleSubmit}
+      <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
         >
-          {errors.general && (
-            <div className="error-alert">
-              <div className="error-icon">⚠️</div>
-              <span>{errors.general}</span>
-            </div>
-          )}
-
-          <div className="input-group">
-            <div className="input-wrapper">
-              <input
-                type="text"
-                id="username"
-                name="username"
-                className={`login-input ${
-                  errors.username ? "input-error" : ""
-                }`}
-                placeholder=" "
-                value={formData.username}
-                onChange={handleInputChange}
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="username"
-                className="input-label"
-              >
-                Username
-              </label>
-              <div className="input-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </div>
-            </div>
-            {errors.username && (
-              <div className="error-text">
-                <span className="error-icon">⚠️</span>
-                {errors.username}
-              </div>
-            )}
-          </div>
-
-          <div className="input-group">
-            <div className="input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                className={`login-input ${
-                  errors.password ? "input-error" : ""
-                }`}
-                placeholder=" "
-                value={formData.password}
-                onChange={handleInputChange}
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="password"
-                className="input-label"
-              >
-                Password
-              </label>
-              <div className="input-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2"
-                  ></rect>
-                  <circle
-                    cx="12"
-                    cy="16"
-                    r="1"
-                  ></circle>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </div>
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={togglePasswordVisibility}
-                disabled={isLoading}
-              >
-                {showPassword ? (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94L17.94 17.94z"></path>
-                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19l-6.84-6.84z"></path>
-                    <line
-                      x1="1"
-                      y1="1"
-                      x2="23"
-                      y2="23"
-                    ></line>
-                  </svg>
-                ) : (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                    ></circle>
-                  </svg>
-                )}
-              </button>
-            </div>
-            {errors.password && (
-              <div className="error-text">
-                <span className="error-icon">⚠️</span>
-                {errors.password}
-              </div>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className={`login-button ${isLoading ? "loading" : ""}`}
-            disabled={isLoading}
+          <Paper
+            elevation={8}
+            component={motion.div}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              boxShadow: `0 8px 32px 0 ${alpha(theme.palette.primary.main, 0.1)}`,
+              backdropFilter: "blur(8px)",
+              background: alpha(theme.palette.background.paper, 0.9),
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            <span className="button-text">
-              {isLoading ? "Signing in..." : "Sign In"}
-            </span>
-            {isLoading && <div className="loading-spinner"></div>}
-          </button>
-        </form>
-      </div>
-    </div>
+            {/* Logo/Icon */}
+            <motion.div variants={itemVariants}>
+              <Box
+                sx={{
+                  width: 70,
+                  height: 70,
+                  borderRadius: "50%",
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mb: 3,
+                }}
+              >
+                <PersonOutline 
+                  color="primary" 
+                  sx={{ fontSize: 40 }} 
+                />
+              </Box>
+            </motion.div>
+
+            {/* Header */}
+            <motion.div variants={itemVariants}>
+              <Typography variant="h4" fontWeight="bold" textAlign="center" mb={1}>
+                Welcome Back
+              </Typography>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
+                Please sign in to your account
+              </Typography>
+            </motion.div>
+
+            {/* Form */}
+            <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
+              {errors.general && (
+                <motion.div variants={itemVariants}>
+                  <Alert severity="error" sx={{ mb: 3 }}>
+                    {errors.general}
+                  </Alert>
+                </motion.div>
+              )}
+
+              <motion.div variants={itemVariants}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  margin="normal"
+                  id="username"
+                  name="username"
+                  label="Username"
+                  autoComplete="username"
+                  autoFocus
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  error={!!errors.username}
+                  helperText={errors.username || " "}
+                  disabled={isLoading}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonOutline color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      transition: "all 0.3s ease-in-out",
+                      "&.Mui-focused": {
+                        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                      },
+                    },
+                  }}
+                />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  margin="normal"
+                  id="password"
+                  name="password"
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  error={!!errors.password}
+                  helperText={errors.password || " "}
+                  disabled={isLoading}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlined color="primary" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={togglePasswordVisibility}
+                          edge="end"
+                          size="large"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      transition: "all 0.3s ease-in-out",
+                      "&.Mui-focused": {
+                        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                      },
+                    },
+                  }}
+                />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1, mb: 2 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        color="primary"
+                        name="rememberMe"
+                        checked={formData.rememberMe}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                      />
+                    }
+                    label="Remember me"
+                  />
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    sx={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      transition: "color 0.3s",
+                      "&:hover": { color: theme.palette.primary.dark },
+                    }}
+                  >
+                    Forgot password?
+                  </Typography>
+                </Box>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={isLoading}
+                  sx={{
+                    mt: 2,
+                    mb: 2,
+                    py: 1.5,
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: 2,
+                    boxShadow: `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: `0 6px 20px 0 ${alpha(theme.palette.primary.main, 0.5)}`,
+                    },
+                    "&:after": {
+                      content: '""',
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 38%, rgba(255,255,255,0) 47%)",
+                      transform: "translateX(-100%)",
+                    },
+                    "&:hover:after": {
+                      animation: "shine 1.5s infinite",
+                      "@keyframes shine": {
+                        "100%": {
+                          transform: "translateX(100%)",
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {isLoading ? (
+                    <>
+                      <CircularProgress
+                        size={24}
+                        sx={{
+                          color: theme.palette.primary.contrastText,
+                          position: "absolute",
+                          left: "50%",
+                          marginLeft: "-12px",
+                        }}
+                      />
+                      <Typography
+                        variant="button"
+                        sx={{ visibility: "hidden" }}
+                      >
+                        Sign In
+                      </Typography>
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Box sx={{ textAlign: "center", mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Don't have an account?{" "}
+                    <Typography
+                      component="span"
+                      variant="body2"
+                      color="primary"
+                      sx={{
+                        cursor: "pointer",
+                        fontWeight: "medium",
+                        transition: "color 0.3s",
+                        "&:hover": { color: theme.palette.primary.dark },
+                      }}
+                      onClick={onSwitchToRegister}
+                    >
+                      Sign up
+                    </Typography>
+                  </Typography>
+                </Box>
+              </motion.div>
+            </Box>
+          </Paper>
+        </motion.div>
+      </Container>
+    </Box>
   );
 };
 

@@ -1,7 +1,7 @@
 /* Professional Login Component Styles */
 
 /* Import theme variables */
-@import url('../theme.css');
+@import url("../theme.css");
 
 * {
   margin: 0;
@@ -10,13 +10,9 @@
 }
 
 .login-container {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  font-family: var(--font-family);
-  overflow: hidden;
   height: 100vh;
   width: 100vw;
   background: var(--neutral-50);
@@ -81,7 +77,11 @@
   top: 20%;
   left: 10%;
   animation-delay: 0s;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(37, 99, 235, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.1),
+    rgba(37, 99, 235, 0.1)
+  );
 }
 
 .shape-2 {
@@ -90,7 +90,11 @@
   top: 60%;
   right: 10%;
   animation-delay: 2s;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.1),
+    rgba(29, 78, 216, 0.1)
+  );
 }
 
 .shape-3 {
@@ -99,7 +103,11 @@
   bottom: 20%;
   left: 20%;
   animation-delay: 4s;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(59, 130, 246, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.1),
+    rgba(59, 130, 246, 0.1)
+  );
 }
 
 .shape-4 {
@@ -108,7 +116,11 @@
   top: 10%;
   right: 30%;
   animation-delay: 1s;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(96, 165, 250, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.1),
+    rgba(96, 165, 250, 0.1)
+  );
 }
 
 @keyframes float {
@@ -122,17 +134,14 @@
 }
 
 .login-card {
+  margin: auto;
+  max-width: 400px;
+  padding: var(--space-lg);
   background: white;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--neutral-200);
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  width: 100%;
-  max-width: 420px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   position: relative;
   animation: slideIn 0.6s ease-out;
-  margin: auto;
   z-index: 1;
 }
 
@@ -506,7 +515,7 @@ body {
     gap: var(--space-md);
     align-items: flex-start;
   }
-  
+
   .shape {
     opacity: 0.5;
   }
@@ -526,7 +535,7 @@ body {
     width: 22px;
     height: 22px;
   }
-  
+
   .login-form {
     gap: var(--space-md);
   }
