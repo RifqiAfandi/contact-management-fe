@@ -281,18 +281,15 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                 textAlign="center"
                 mb={1}
               >
-                Welcome Back
+                Welcome
               </Typography>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
               <Typography
-                variant="body1"
-                color="text.secondary"
+                variant="h4"
+                fontWeight="bold"
                 textAlign="center"
-                mb={4}
+                mb={1}
               >
-                Please sign in to your account
+                Contact Caffe & Eatery
               </Typography>
             </motion.div>
 
@@ -400,43 +397,6 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mt: 1,
-                    mb: 2,
-                  }}
-                >
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        color="primary"
-                        name="rememberMe"
-                        checked={formData.rememberMe}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                    }
-                    label="Remember me"
-                  />
-                  <Typography
-                    variant="body2"
-                    color="primary"
-                    sx={{
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "color 0.3s",
-                      "&:hover": { color: theme.palette.primary.dark },
-                    }}
-                  >
-                    Forgot password?
-                  </Typography>
-                </Box>
-              </motion.div>
-
-              <motion.div variants={itemVariants}>
                 <Button
                   type="submit"
                   fullWidth
@@ -506,31 +466,6 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                     "Sign In"
                   )}
                 </Button>
-              </motion.div>
-
-              <motion.div variants={itemVariants}>
-                <Box sx={{ textAlign: "center", mt: 2 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    Don't have an account?{" "}
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      color="primary"
-                      sx={{
-                        cursor: "pointer",
-                        fontWeight: "medium",
-                        transition: "color 0.3s",
-                        "&:hover": { color: theme.palette.primary.dark },
-                      }}
-                      onClick={onSwitchToRegister}
-                    >
-                      Sign up
-                    </Typography>
-                  </Typography>
-                </Box>
               </motion.div>
             </Box>
           </Paper>
