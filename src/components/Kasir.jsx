@@ -10,7 +10,8 @@ const mockProducts = [
     productName: "Coffee Latte",
     price: 25000,
     servingType: "Hot",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 20,
   },
   {
@@ -18,7 +19,8 @@ const mockProducts = [
     productName: "Cappuccino",
     price: 28000,
     servingType: "Hot",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 15,
   },
   {
@@ -26,7 +28,8 @@ const mockProducts = [
     productName: "Green Tea",
     price: 20000,
     servingType: "Cold",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 25,
   },
   {
@@ -34,7 +37,8 @@ const mockProducts = [
     productName: "Chocolate Frappe",
     price: 30000,
     servingType: "Cold",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 10,
   },
   {
@@ -42,7 +46,8 @@ const mockProducts = [
     productName: "Espresso",
     price: 18000,
     servingType: "Hot",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 30,
   },
   {
@@ -50,7 +55,8 @@ const mockProducts = [
     productName: "Matcha Latte",
     price: 27000,
     servingType: "Hot",
-    imageUrl: "https://via.placeholder.com/150",
+    imageUrl:
+      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
     stock: 12,
   },
 ];

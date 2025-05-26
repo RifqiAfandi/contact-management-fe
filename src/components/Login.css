@@ -24,7 +24,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 50%, #1d4ed8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    var(--primary-color) 50%,
+    var(--primary-dark) 100%
+  );
   opacity: 0.05;
   z-index: -2;
 }
@@ -65,7 +70,7 @@
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(var(--primary-color-rgb), 0.05);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-md);
   animation: float 6s ease-in-out infinite;
@@ -79,8 +84,8 @@
   animation-delay: 0s;
   background: linear-gradient(
     135deg,
-    rgba(96, 165, 250, 0.1),
-    rgba(37, 99, 235, 0.1)
+    rgba(var(--primary-light-rgb), 0.1),
+    rgba(var(--primary-color-rgb), 0.1)
   );
 }
 
@@ -92,8 +97,8 @@
   animation-delay: 2s;
   background: linear-gradient(
     135deg,
-    rgba(37, 99, 235, 0.1),
-    rgba(29, 78, 216, 0.1)
+    rgba(var(--primary-color-rgb), 0.1),
+    rgba(var(--primary-dark-rgb), 0.1)
   );
 }
 

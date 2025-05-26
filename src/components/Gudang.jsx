@@ -22,27 +22,30 @@ const WarehousePage = ({ user }) => {
   const mockData = [
     {
       id: 1,
-      itemName: "Laptop Dell XPS 13",
+      itemName: "Susu",
       purchasePrice: 15000000,
       expiredDate: "2025-12-31",
       entryDate: "2024-01-15",
-      itemUrl: "https://via.placeholder.com/150",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
     },
     {
       id: 2,
-      itemName: "Mouse Wireless Logitech",
+      itemName: "Nuget",
       purchasePrice: 250000,
       expiredDate: "2024-08-15",
       entryDate: "2024-02-10",
-      itemUrl: "https://via.placeholder.com/150",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
     },
     {
       id: 3,
-      itemName: "Keyboard Mechanical",
+      itemName: "Kopi",
       purchasePrice: 750000,
       expiredDate: "2026-03-20",
       entryDate: "2024-03-05",
-      itemUrl: "https://via.placeholder.com/150",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
     },
   ];
 
@@ -111,7 +114,7 @@ const WarehousePage = ({ user }) => {
         purchasePrice: parseInt(formData.purchasePrice),
         itemUrl: formData.imageFile
           ? URL.createObjectURL(formData.imageFile)
-          : "https://via.placeholder.com/150",
+          : "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
       };
 
       if (editingItem) {
@@ -342,8 +345,8 @@ const WarehousePage = ({ user }) => {
         </div>
       </div>
 
-      {/* Inventory Grid */}
-      <div className="inventory-grid">
+      {/* Inventory List */}
+      <div className="inventory-list">
         {isLoading && filteredItems.length === 0 ? (
           <div className="loading-state">
             <p>Memuat data...</p>
@@ -363,9 +366,9 @@ const WarehousePage = ({ user }) => {
           filteredItems.map((item) => (
             <div
               key={item.id}
-              className="inventory-card"
+              className="inventory-item"
             >
-              <div className="card-image">
+              <div className="item-image">
                 <img
                   src={item.itemUrl}
                   alt={item.itemName}
@@ -376,36 +379,37 @@ const WarehousePage = ({ user }) => {
                   )}`}
                 >
                   {getExpiryStatus(item.expiredDate) === "expired" && "Expired"}
-                  {getExpiryStatus(item.expiredDate) === "warning" &&
-                    "Segera Expired"}
+                  {getExpiryStatus(item.expiredDate) === "warning" && "Segera"}
                   {getExpiryStatus(item.expiredDate) === "normal" && "Normal"}
                 </div>
               </div>
 
-              <div className="card-content">
-                <h3 className="item-name">{item.itemName}</h3>
-                <div className="item-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Harga Beli:</span>
-                    <span className="detail-value">
-                      {formatCurrency(item.purchasePrice)}
-                    </span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Tanggal Masuk:</span>
-                    <span className="detail-value">
-                      {formatDate(item.entryDate)}
-                    </span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Expired:</span>
-                    <span className="detail-value">
-                      {formatDate(item.expiredDate)}
-                    </span>
+              <div className="item-content">
+                <div className="item-info">
+                  <h3 className="item-name">{item.itemName}</h3>
+                  <div className="item-details">
+                    <div className="detail-item">
+                      <span className="detail-label">Harga Beli</span>
+                      <span className="detail-value">
+                        {formatCurrency(item.purchasePrice)}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Tanggal Masuk</span>
+                      <span className="detail-value">
+                        {formatDate(item.entryDate)}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Expired</span>
+                      <span className="detail-value">
+                        {formatDate(item.expiredDate)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="card-actions">
+                <div className="item-actions">
                   <button
                     className="action-btn edit-btn"
                     onClick={() => handleEdit(item)}

@@ -163,38 +163,6 @@ const Login = ({ onLogin }) => {
     setShowPassword((prev) => !prev);
   };
 
-  // Create dynamic background elements
-  const backgroundElements = Array.from({ length: 15 }, (_, i) => (
-    <Box
-      key={i}
-      component={motion.div}
-      sx={{
-        position: "absolute",
-        width: `${Math.random() * 150 + 20}px`,
-        height: `${Math.random() * 150 + 20}px`,
-        borderRadius: "50%",
-        background: alpha(
-          theme.palette.primary.main,
-          0.05 + Math.random() * 0.1
-        ),
-        backdropFilter: "blur(4px)",
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        zIndex: 0,
-      }}
-      animate={{
-        x: [0, Math.random() * 40 - 20],
-        y: [0, Math.random() * 40 - 20],
-        scale: [1, Math.random() * 0.3 + 0.8],
-      }}
-      transition={{
-        repeat: Infinity,
-        repeatType: "reverse",
-        duration: Math.random() * 5 + 10,
-      }}
-    />
-  ));
-
   return (
     <Box
       sx={{
@@ -218,9 +186,7 @@ const Login = ({ onLogin }) => {
           overflow: "hidden",
           zIndex: 0,
         }}
-      >
-        {backgroundElements}
-      </Box>
+      ></Box>
 
       <Container
         maxWidth="sm"
@@ -318,6 +284,7 @@ const Login = ({ onLogin }) => {
                   id="username"
                   name="username"
                   label="Username"
+                  placeholder="Enter your username"
                   autoComplete="username"
                   autoFocus
                   value={formData.username}
@@ -352,9 +319,9 @@ const Login = ({ onLogin }) => {
                   fullWidth
                   variant="outlined"
                   margin="normal"
-                  id="password"
-                  name="password"
+                  id="password"                  name="password"
                   label="Password"
+                  placeholder="Enter your password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={formData.password}
