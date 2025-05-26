@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Gudang.css";
 
-const WarehousePage = () => {
+const WarehousePage = ({ user, onLogout }) => {
   const [inventoryItems, setInventoryItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -208,26 +208,47 @@ const WarehousePage = () => {
     return <span className="icon">{icons[iconName] || "•"}</span>;
   };
 
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    return now.toLocaleString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
-    <div className="warehouse-page">
+    <div className="gudang-container">
       {/* Header Section */}
-      <div className="warehouse-header">
-        <div className="header-content">
-          <div className="header-title-section">
-            <h1 className="page-title">📦 Manajemen Gudang</h1>
-            <p className="page-subtitle">
-              Kelola inventori dan stok barang dengan mudah
-            </p>
+      <header className="gudang-header">
+        <div className="header-left">
+          <div className="logo">
+            <div className="logo-icon">📦</div>
+            <div className="logo-text">
+              <h1>Contact Caffe & Eatery</h1>
+            </div>
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="user-info">
+            <div className="user-avatar">
+              {user?.username?.charAt(0).toUpperCase() || "G"}
+            </div>
+            <div className="user-details">
+              <div className="user-name">{user?.username || "Guest"}</div>
+              <div className="user-role">{getCurrentDateTime()}</div>
+            </div>
           </div>
           <button
-            className="add-button"
-            onClick={() => setIsModalOpen(true)}
+            className="logout-btn"
+            onClick={onLogout}
           >
-            {renderIcon("plus")}
-            Tambah Barang
+            <span>Logout</span>
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Statistics Cards */}
       <div className="stats-grid">
@@ -306,6 +327,13 @@ const WarehousePage = () => {
           >
             {renderIcon("sort")}
             {sortOrder === "asc" ? "A-Z" : "Z-A"}
+          </button>
+          <button
+            className="add-button"
+            onClick={() => setIsModalOpen(true)}
+          >
+            {renderIcon("plus")}
+            Tambah Barang
           </button>
         </div>
       </div>
