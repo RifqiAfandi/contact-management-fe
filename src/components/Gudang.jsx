@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Gudang.css";
 
-const WarehousePage = ({ user, onLogout }) => {
+const WarehousePage = ({ user }) => {
   const [inventoryItems, setInventoryItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,6 +91,10 @@ const WarehousePage = ({ user, onLogout }) => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleLogout = () => {
+    window.location.href = "/login";
   };
 
   const handleSubmit = async (e) => {
@@ -243,7 +247,7 @@ const WarehousePage = ({ user, onLogout }) => {
           </div>
           <button
             className="logout-btn"
-            onClick={onLogout}
+            onClick={handleLogout}
           >
             <span>Logout</span>
           </button>

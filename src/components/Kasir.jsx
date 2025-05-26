@@ -154,6 +154,10 @@ const Kasir = ({ user, onLogout }) => {
     setShowReceipt(true);
   };
 
+  const handleLogout = () => {
+    window.location.href = "/login";
+  };
+
   // Reset after transaction
   const resetTransaction = () => {
     setCart([]);
@@ -197,7 +201,7 @@ const Kasir = ({ user, onLogout }) => {
           </div>
           <button
             className="logout-btn"
-            onClick={onLogout}
+            onClick={handleLogout}
           >
             <span>Logout</span>
           </button>

@@ -140,8 +140,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
         // Redirect based on user role
         if (user.role === "admin") {
           navigate("/admin");
-        } else if (user.role === "user") {
+        } else if (user.role === "kasir") {
           navigate("/kasir");
+        } else if (user.role == "gudang") {
+          navigate("/gudang");
         } else {
           throw new Error("Unauthorized role");
         }
@@ -171,7 +173,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
         width: `${Math.random() * 150 + 20}px`,
         height: `${Math.random() * 150 + 20}px`,
         borderRadius: "50%",
-        background: alpha(theme.palette.primary.main, 0.05 + Math.random() * 0.1),
+        background: alpha(
+          theme.palette.primary.main,
+          0.05 + Math.random() * 0.1
+        ),
         backdropFilter: "blur(4px)",
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
@@ -217,7 +222,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
         {backgroundElements}
       </Box>
 
-      <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+      <Container
+        maxWidth="sm"
+        sx={{ position: "relative", zIndex: 1 }}
+      >
         <motion.div
           initial="hidden"
           animate="visible"
@@ -232,7 +240,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
             sx={{
               p: 4,
               borderRadius: 3,
-              boxShadow: `0 8px 32px 0 ${alpha(theme.palette.primary.main, 0.1)}`,
+              boxShadow: `0 8px 32px 0 ${alpha(
+                theme.palette.primary.main,
+                0.1
+              )}`,
               backdropFilter: "blur(8px)",
               background: alpha(theme.palette.background.paper, 0.9),
               border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -255,31 +266,48 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                   mb: 3,
                 }}
               >
-                <PersonOutline 
-                  color="primary" 
-                  sx={{ fontSize: 40 }} 
+                <PersonOutline
+                  color="primary"
+                  sx={{ fontSize: 40 }}
                 />
               </Box>
             </motion.div>
 
             {/* Header */}
             <motion.div variants={itemVariants}>
-              <Typography variant="h4" fontWeight="bold" textAlign="center" mb={1}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                textAlign="center"
+                mb={1}
+              >
                 Welcome Back
               </Typography>
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                textAlign="center"
+                mb={4}
+              >
                 Please sign in to your account
               </Typography>
             </motion.div>
 
             {/* Form */}
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ width: "100%" }}
+            >
               {errors.general && (
                 <motion.div variants={itemVariants}>
-                  <Alert severity="error" sx={{ mb: 3 }}>
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                  >
                     {errors.general}
                   </Alert>
                 </motion.div>
@@ -312,7 +340,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                       borderRadius: 2,
                       transition: "all 0.3s ease-in-out",
                       "&.Mui-focused": {
-                        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                        boxShadow: `0 0 0 3px ${alpha(
+                          theme.palette.primary.main,
+                          0.2
+                        )}`,
                       },
                     },
                   }}
@@ -358,7 +389,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                       borderRadius: 2,
                       transition: "all 0.3s ease-in-out",
                       "&.Mui-focused": {
-                        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                        boxShadow: `0 0 0 3px ${alpha(
+                          theme.palette.primary.main,
+                          0.2
+                        )}`,
                       },
                     },
                   }}
@@ -366,7 +400,14 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1, mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 1,
+                    mb: 2,
+                  }}
+                >
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -410,11 +451,17 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                     position: "relative",
                     overflow: "hidden",
                     borderRadius: 2,
-                    boxShadow: `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+                    boxShadow: `0 4px 14px 0 ${alpha(
+                      theme.palette.primary.main,
+                      0.39
+                    )}`,
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-2px)",
-                      boxShadow: `0 6px 20px 0 ${alpha(theme.palette.primary.main, 0.5)}`,
+                      boxShadow: `0 6px 20px 0 ${alpha(
+                        theme.palette.primary.main,
+                        0.5
+                      )}`,
                     },
                     "&:after": {
                       content: '""',
@@ -423,7 +470,8 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                       left: 0,
                       width: "100%",
                       height: "100%",
-                      background: "linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 38%, rgba(255,255,255,0) 47%)",
+                      background:
+                        "linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 38%, rgba(255,255,255,0) 47%)",
                       transform: "translateX(-100%)",
                     },
                     "&:hover:after": {
@@ -462,7 +510,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
 
               <motion.div variants={itemVariants}>
                 <Box sx={{ textAlign: "center", mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
                     Don't have an account?{" "}
                     <Typography
                       component="span"
