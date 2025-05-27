@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./Gudang.css";
 
+const BACKEND_URL = "http://localhost:3000"; // Make sure this matches your backend URL
+
 const WarehousePage = () => {
   const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -25,105 +28,40 @@ const WarehousePage = () => {
     entryDate: "",
     imageFile: null,
   });
-
-  // Mock data for demonstration
-  const mockData = [
-    {
-      id: 1,
-      itemName: "Susu",
-      purchasePrice: 15000000,
-      expiredDate: "2025-12-31",
-      entryDate: "2024-01-15",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 2,
-      itemName: "Nuget",
-      purchasePrice: 250000,
-      expiredDate: "2024-08-15",
-      entryDate: "2024-02-10",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 3,
-      itemName: "Kopi",
-      purchasePrice: 750000,
-      expiredDate: "2026-03-20",
-      entryDate: "2024-03-05",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 4,
-      itemName: "Gula",
-      purchasePrice: 120000,
-      expiredDate: "2025-06-15",
-      entryDate: "2024-04-12",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 5,
-      itemName: "Tepung Terigu",
-      purchasePrice: 180000,
-      expiredDate: "2025-09-30",
-      entryDate: "2024-05-20",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 6,
-      itemName: "Mentega",
-      purchasePrice: 350000,
-      expiredDate: "2024-12-25",
-      entryDate: "2024-06-08",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 7,
-      itemName: "Telur",
-      purchasePrice: 280000,
-      expiredDate: "2024-07-10",
-      entryDate: "2024-07-01",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 8,
-      itemName: "Keju",
-      purchasePrice: 450000,
-      expiredDate: "2025-01-18",
-      entryDate: "2024-08-22",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 9,
-      itemName: "Coklat Bubuk",
-      purchasePrice: 320000,
-      expiredDate: "2026-11-05",
-      entryDate: "2024-09-14",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-    {
-      id: 10,
-      itemName: "Vanilla Extract",
-      purchasePrice: 680000,
-      expiredDate: "2027-04-22",
-      entryDate: "2024-10-30",
-      itemUrl:
-        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-    },
-  ];
-
   useEffect(() => {
-    // Simulate API call
-    setInventoryItems(mockData);
-    setFilteredItems(mockData);
+    const fetchInventory = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        console.log("🔄 Fetching inventory from:", `${BACKEND_URL}/api/inventory`);
+        const response = await fetch(`${BACKEND_URL}/api/inventory`);
+        
+        console.log("📡 Response status:", response.status);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch inventory");
+        }
+
+        const result = await response.json();
+        console.log("📦 API Response:", result);
+
+        if (result.isSuccess && result.data) {
+          console.log("✅ Inventory items loaded:", result.data.length);
+          console.log("📋 Sample item:", result.data[0]);
+          setInventoryItems(result.data);
+          setFilteredItems(result.data);
+        } else {
+          throw new Error(result.message || "Invalid response format");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching inventory:", error);
+        setError("Failed to load inventory. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInventory();
   }, []);
 
   useEffect(() => {
@@ -170,37 +108,66 @@ const WarehousePage = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     window.location.href = "/login";
-  };
-
-  const handleSubmit = async (e) => {
+  };  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newItem = {
-        id: editingItem ? editingItem.id : Date.now(),
+      console.log("📝 Preparing form data:", {
         ...formData,
-        purchasePrice: parseInt(formData.purchasePrice),
-        itemUrl: formData.imageFile
-          ? URL.createObjectURL(formData.imageFile)
-          : "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
-      };
+        imageFile: formData.imageFile ? "Present" : "Not present"
+      });
 
+      const formDataToSend = new FormData();
+      formDataToSend.append("itemName", formData.itemName);
+      formDataToSend.append("purchasePrice", formData.purchasePrice);
+      formDataToSend.append("expiredDate", formData.expiredDate);
+      formDataToSend.append("entryDate", formData.entryDate);
+      if (formData.imageFile) {
+        formDataToSend.append("image", formData.imageFile);
+      }      console.log(`🚀 ${editingItem ? 'Updating' : 'Creating'} inventory item...`);
+      let response;
       if (editingItem) {
-        // Update existing item
-        const updatedItems = inventoryItems.map((item) =>
-          item.id === editingItem.id ? newItem : item
+        response = await fetch(
+          `${BACKEND_URL}/api/inventory/${editingItem.id}`,
+          {
+            method: "PUT",
+            body: formDataToSend,
+          }
         );
-        setInventoryItems(updatedItems);
       } else {
-        // Add new item
-        setInventoryItems((prev) => [...prev, newItem]);
+        response = await fetch(`${BACKEND_URL}/api/inventory`, {
+          method: "POST",
+          body: formDataToSend,
+        });
       }
 
-      handleCloseModal();
+      console.log("📡 Response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save inventory item");
+      }
+
+      const result = await response.json();
+      console.log("📦 API Response:", result);
+
+      if (result.isSuccess) {
+        console.log("✅ Item saved successfully, refreshing inventory list...");
+        const inventoryResponse = await fetch(`${BACKEND_URL}/api/inventory`);
+        const inventoryResult = await inventoryResponse.json();
+        if (inventoryResult.isSuccess) {
+          setInventoryItems(inventoryResult.data);
+          setFilteredItems(inventoryResult.data);
+          handleCloseModal();
+          console.log("🔄 Inventory list refreshed");
+        } else {
+          throw new Error("Failed to refresh inventory list");
+        }
+      } else {
+        throw new Error(result.message || "Failed to save inventory item");
+      }
     } catch (error) {
       console.error("Error saving item:", error);
     } finally {
@@ -218,18 +185,44 @@ const WarehousePage = () => {
       imageFile: null,
     });
     setIsModalOpen(true);
-  };
-
-  const handleDelete = async (id) => {
+  };  const handleDelete = async (id) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus item ini?")) {
       setIsLoading(true);
+      setError(null);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const updatedItems = inventoryItems.filter((item) => item.id !== id);
-        setInventoryItems(updatedItems);
+        console.log("🗑️ Deleting inventory item:", id);
+        const response = await fetch(`${BACKEND_URL}/api/inventory/${id}`, {
+          method: "DELETE",
+        });
+
+        console.log("📡 Response status:", response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to delete inventory item");
+        }
+
+        const result = await response.json();
+        console.log("📦 API Response:", result);
+
+        if (result.isSuccess) {
+          console.log("✅ Item deleted successfully, refreshing inventory list...");
+          const inventoryResponse = await fetch(`${BACKEND_URL}/api/inventory`);
+          const inventoryResult = await inventoryResponse.json();
+          if (inventoryResult.isSuccess) {
+            setInventoryItems(inventoryResult.data);
+            setFilteredItems(inventoryResult.data);
+            console.log("🔄 Inventory list refreshed");
+          } else {
+            throw new Error("Failed to refresh inventory list");
+          }
+        } else {
+          throw new Error(result.message || "Failed to delete inventory item");
+        }
       } catch (error) {
-        console.error("Error deleting item:", error);
+        console.error("❌ Error deleting item:", error);
+        setError(error.message || "Failed to delete inventory item");
+        alert(error.message || "Failed to delete inventory item");
       } finally {
         setIsLoading(false);
       }
@@ -270,7 +263,6 @@ const WarehousePage = () => {
     if (diffDays <= 30) return "warning";
     return "normal";
   };
-
   const renderIcon = (iconName) => {
     const icons = {
       plus: "➕",
@@ -283,6 +275,7 @@ const WarehousePage = () => {
       calendar: "📅",
       money: "💰",
       package: "📦",
+      refresh: "🔄",
     };
     return <span className="icon">{icons[iconName] || "•"}</span>;
   };
@@ -415,12 +408,21 @@ const WarehousePage = () => {
             Tambah Barang
           </button>
         </div>
-      </div>
-
-      {/* Inventory List */}
+      </div>      {/* Inventory List */}
       <div className="inventory-list">
-        {isLoading && filteredItems.length === 0 ? (
+        {error ? (
+          <div className="error-state">
+            <p>{error}</p>
+            <button
+              className="retry-button"
+              onClick={() => window.location.reload()}
+            >
+              {renderIcon("refresh")} Coba Lagi
+            </button>
+          </div>
+        ) : isLoading ? (
           <div className="loading-state">
+            <div className="loading-spinner"></div>
             <p>Memuat data...</p>
           </div>
         ) : filteredItems.length === 0 ? (
