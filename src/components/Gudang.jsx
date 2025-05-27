@@ -47,6 +47,69 @@ const WarehousePage = ({ user }) => {
       itemUrl:
         "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
     },
+    {
+      id: 4,
+      itemName: "Gula",
+      purchasePrice: 120000,
+      expiredDate: "2025-06-15",
+      entryDate: "2024-04-12",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 5,
+      itemName: "Tepung Terigu",
+      purchasePrice: 180000,
+      expiredDate: "2025-09-30",
+      entryDate: "2024-05-20",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 6,
+      itemName: "Mentega",
+      purchasePrice: 350000,
+      expiredDate: "2024-12-25",
+      entryDate: "2024-06-08",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 7,
+      itemName: "Telur",
+      purchasePrice: 280000,
+      expiredDate: "2024-07-10",
+      entryDate: "2024-07-01",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 8,
+      itemName: "Keju",
+      purchasePrice: 450000,
+      expiredDate: "2025-01-18",
+      entryDate: "2024-08-22",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 9,
+      itemName: "Coklat Bubuk",
+      purchasePrice: 320000,
+      expiredDate: "2026-11-05",
+      entryDate: "2024-09-14",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
+    {
+      id: 10,
+      itemName: "Vanilla Extract",
+      purchasePrice: 680000,
+      expiredDate: "2027-04-22",
+      entryDate: "2024-10-30",
+      itemUrl:
+        "https://ik.imagekit.io/RifqiAfandi/WA%20+628122881109%20Biji%20kopi%20terbaik%20terlaris.jfif?updatedAt=1748261128499",
+    },
   ];
 
   useEffect(() => {
