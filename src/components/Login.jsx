@@ -124,18 +124,22 @@ const Login = ({ onLogin }) => {
       }
 
       const data = await response.json();
-
       if (data.isSuccess && data.data) {
         const { token, user } = data.data;
 
-        // Store token in localStorage or cookies if needed
+        // Store user data and token in localStorage
+        const userData = {
+          ...user,
+          name: user.name, // Fallback to username if name is not provided
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
 
         if (onLogin) {
-          onLogin(user);
+          onLogin(userData);
         }
 
-        console.log("Login successful!", user);
+        console.log("Login successful!", userData);
 
         // Redirect based on user role
         if (user.role === "admin") {
@@ -319,7 +323,8 @@ const Login = ({ onLogin }) => {
                   fullWidth
                   variant="outlined"
                   margin="normal"
-                  id="password"                  name="password"
+                  id="password"
+                  name="password"
                   label="Password"
                   placeholder="Enter your password"
                   type={showPassword ? "text" : "password"}

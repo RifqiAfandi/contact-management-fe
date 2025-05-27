@@ -3,7 +3,15 @@ import "./Kasir.css";
 
 const BACKEND_URL = "http://localhost:3000"; // Replace with your backend URL
 
-const Kasir = ({ user, onLogout }) => {
+const Kasir = ({ onLogout }) => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -192,8 +200,9 @@ const Kasir = ({ user, onLogout }) => {
       setCheckoutLoading(false);
     }
   };
-
   const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
@@ -231,10 +240,10 @@ const Kasir = ({ user, onLogout }) => {
         <div className="header-right">
           <div className="user-info">
             <div className="user-avatar">
-              {user?.username?.charAt(0).toUpperCase() || "G"}
+              {user?.name?.charAt(0).toUpperCase() || "G"}
             </div>
             <div className="user-details">
-              <div className="user-name">{user?.username || "Guest"}</div>
+              <div className="user-name">{user?.name || "Guest"}</div>
               <div className="user-role">{getCurrentDateTime()}</div>
             </div>
           </div>

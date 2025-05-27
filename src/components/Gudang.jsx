@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "./Gudang.css";
 
-const WarehousePage = ({ user }) => {
+const WarehousePage = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,7 +157,6 @@ const WarehousePage = ({ user }) => {
 
     setFilteredItems(filtered);
   };
-
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "imageFile") {
@@ -160,6 +167,8 @@ const WarehousePage = ({ user }) => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
@@ -304,10 +313,10 @@ const WarehousePage = ({ user }) => {
         <div className="header-right">
           <div className="user-info">
             <div className="user-avatar">
-              {user?.username?.charAt(0).toUpperCase() || "G"}
+              {user?.name?.charAt(0).toUpperCase() || "G"}
             </div>
             <div className="user-details">
-              <div className="user-name">{user?.username || "Guest"}</div>
+              <div className="user-name">{user?.name || "Guest"}</div>
               <div className="user-role">{getCurrentDateTime()}</div>
             </div>
           </div>
