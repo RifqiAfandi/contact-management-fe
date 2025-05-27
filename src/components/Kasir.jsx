@@ -3,100 +3,70 @@ import "./Kasir.css";
 
 const BACKEND_URL = "http://localhost:3000"; // Replace with your backend URL
 
-// Mock products data for demonstration
-const mockProducts = [
-  {
-    id: 1,
-    productName: "Coffee Latte",
-    price: 25000,
-    servingType: "Hot",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 20,
-  },
-  {
-    id: 2,
-    productName: "Cappuccino",
-    price: 28000,
-    servingType: "Hot",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 15,
-  },
-  {
-    id: 3,
-    productName: "Green Tea",
-    price: 20000,
-    servingType: "Cold",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 25,
-  },
-  {
-    id: 4,
-    productName: "Chocolate Frappe",
-    price: 30000,
-    servingType: "Cold",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 10,
-  },
-  {
-    id: 5,
-    productName: "Espresso",
-    price: 18000,
-    servingType: "Hot",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 30,
-  },
-  {
-    id: 6,
-    productName: "Matcha Latte",
-    price: 27000,
-    servingType: "Hot",
-    imageUrl:
-      "https://ik.imagekit.io/RifqiAfandi/Coffe?updatedAt=1748260545637",
-    stock: 12,
-  },
-];
-
 const Kasir = ({ user, onLogout }) => {
   const [cart, setCart] = useState([]);
-  const [products, setProducts] = useState(mockProducts); // Using mock data
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastTransaction, setLastTransaction] = useState(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // In a real app, you would fetch products from backend
+  // Fetch products from backend
   useEffect(() => {
-    // Uncomment this to fetch from actual backend
-    /*
     const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
       try {
+        console.log(
+          "🔄 Fetching products from:",
+          `${BACKEND_URL}/api/products`
+        );
         const response = await fetch(`${BACKEND_URL}/api/products`);
+
+        console.log("📡 Response status:", response.status);
+
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
+
         const result = await response.json();
+        console.log("📦 API Response:", result);
+
         if (result.isSuccess && result.data) {
-          setProducts(result.data);
+          console.log("✅ Products loaded:", result.data.length);
+          console.log("📋 Sample product:", result.data[0]);
+
+          // Map database fields to frontend expected fields
+          const mappedProducts = result.data.map((product) => ({
+            ...product,
+            price: product.sellingPrice, // Map sellingPrice to price
+            imageUrl: product.productUrl, // Map productUrl to imageUrl
+          }));
+
+          console.log("🔄 Mapped product sample:", mappedProducts[0]);
+          setProducts(mappedProducts);
+        } else {
+          throw new Error("Invalid response format");
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("❌ Error fetching products:", error);
+        setError("Failed to load products. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProducts();
-    */
   }, []);
 
   // Filter products based on search and category
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.productName
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "All" || product.servingType === selectedCategory;
@@ -105,6 +75,18 @@ const Kasir = ({ user, onLogout }) => {
 
   // Add item to cart
   const addToCart = (product) => {
+    // Validate product data before adding to cart
+    if (!product || !product.id || (!product.price && !product.sellingPrice)) {
+      console.error("Invalid product data:", product);
+      return;
+    }
+
+    // Ensure we use the correct price field
+    const productWithPrice = {
+      ...product,
+      price: product.price || product.sellingPrice,
+    };
+
     const existingItem = cart.find((item) => item.id === product.id);
     if (existingItem) {
       setCart(
@@ -115,7 +97,7 @@ const Kasir = ({ user, onLogout }) => {
         )
       );
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      setCart([...cart, { ...productWithPrice, quantity: 1 }]);
     }
   };
 
@@ -137,27 +119,78 @@ const Kasir = ({ user, onLogout }) => {
     }
   };
 
-  // Calculate total
+  // Calculate total with validation
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cart.reduce((total, item) => {
+      const price = parseFloat(item.price || item.sellingPrice) || 0;
+      const quantity = parseInt(item.quantity) || 0;
+      return total + price * quantity;
+    }, 0);
   };
 
-  // Format currency
+  // Format currency with validation
   const formatCurrency = (amount) => {
-    return `Rp ${amount.toLocaleString("id-ID")}`;
+    // Handle undefined, null, or invalid values
+    const numericAmount = parseFloat(amount) || 0;
+    return `Rp ${numericAmount.toLocaleString("id-ID")}`;
   };
 
   // Handle checkout
-  const handleCheckout = () => {
-    const transaction = {
-      id: Date.now(),
-      items: [...cart],
-      total: calculateTotal(),
-      paymentMethod,
-      date: new Date().toISOString(),
-    };
-    setLastTransaction(transaction);
-    setShowReceipt(true);
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      alert("Keranjang kosong!");
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const transaction = {
+        items: cart.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: parseFloat(item.price || item.sellingPrice) || 0,
+        })),
+        total: calculateTotal(),
+        paymentMethod,
+        date: new Date().toISOString(),
+      };
+
+      console.log("🛒 Sending transaction:", transaction);
+
+      const response = await fetch(`${BACKEND_URL}/api/transactions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transaction),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to process transaction");
+      }
+
+      const result = await response.json();
+      console.log("✅ Transaction result:", result);
+
+      if (result.isSuccess) {
+        setLastTransaction({
+          ...transaction,
+          id: result.data.transaction?.id || Date.now(),
+          items: cart, // Use cart items for receipt display
+        });
+        setShowReceipt(true);
+        // Clear cart after successful transaction
+        setCart([]);
+      } else {
+        throw new Error(result.message || "Failed to process transaction");
+      }
+    } catch (error) {
+      console.error("❌ Error processing transaction:", error);
+      alert(`Failed to process transaction: ${error.message}`);
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -167,8 +200,8 @@ const Kasir = ({ user, onLogout }) => {
   // Reset after transaction
   const resetTransaction = () => {
     setCart([]);
-    setCustomerName("");
     setShowReceipt(false);
+    setLastTransaction(null);
   };
 
   // Get current date and time
@@ -257,35 +290,60 @@ const Kasir = ({ user, onLogout }) => {
               >
                 Cold
               </button>
+              <button
+                className={`category-btn ${
+                  selectedCategory === "Hot/Ice" ? "active" : ""
+                }`}
+                onClick={() => setSelectedCategory("Hot/Ice")}
+              >
+                Hot/Ice
+              </button>
             </div>
           </div>
 
-          <div className="products-grid">
-            {filteredProducts.length === 0 ? (
-              <div className="no-products">No products found</div>
-            ) : (
-              filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="product-card"
-                  onClick={() => addToCart(product)}
-                >
-                  <img
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    className="product-image"
-                  />
-                  <div className="product-details">
-                    <h3 className="product-name">{product.productName}</h3>
-                    <p className="product-price">
-                      {formatCurrency(product.price)}
-                    </p>
-                    <p className="product-stock">Stock: {product.stock}</p>
+          {loading ? (
+            <div className="loading">Loading products...</div>
+          ) : error ? (
+            <div className="error">{error}</div>
+          ) : (
+            <div className="products-grid">
+              {filteredProducts.length === 0 ? (
+                <div className="no-products">No products found</div>
+              ) : (
+                filteredProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="product-card"
+                    onClick={() => addToCart(product)}
+                  >
+                    <img
+                      src={
+                        product.imageUrl ||
+                        product.productUrl ||
+                        "/placeholder-image.jpg"
+                      }
+                      alt={product.productName || "Product"}
+                      className="product-image"
+                      onError={(e) => {
+                        e.target.src = "/placeholder-image.jpg";
+                      }}
+                    />
+                    <div className="product-details">
+                      <h3 className="product-name">
+                        {product.productName || "Unknown Product"}
+                      </h3>
+                      <p className="product-price">
+                        {formatCurrency(product.price || product.sellingPrice)}
+                      </p>
+                      <p className="product-category">
+                        {product.servingType || "N/A"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          )}
         </section>
 
         {/* Cart Section */}
@@ -311,13 +369,24 @@ const Kasir = ({ user, onLogout }) => {
                   className="cart-item"
                 >
                   <img
-                    src={item.imageUrl}
-                    alt={item.productName}
+                    src={
+                      item.imageUrl ||
+                      item.productUrl ||
+                      "/placeholder-image.jpg"
+                    }
+                    alt={item.productName || "Product"}
                     className="item-image"
+                    onError={(e) => {
+                      e.target.src = "/placeholder-image.jpg";
+                    }}
                   />
                   <div className="item-details">
-                    <h4 className="item-name">{item.productName}</h4>
-                    <p className="item-price">{formatCurrency(item.price)}</p>
+                    <h4 className="item-name">
+                      {item.productName || "Unknown Product"}
+                    </h4>
+                    <p className="item-price">
+                      {formatCurrency(item.price || item.sellingPrice)}
+                    </p>
                   </div>
                   <div className="item-quantity">
                     <button
@@ -335,7 +404,10 @@ const Kasir = ({ user, onLogout }) => {
                     </button>
                   </div>
                   <span className="item-total">
-                    {formatCurrency(item.price * item.quantity)}
+                    {formatCurrency(
+                      (parseFloat(item.price || item.sellingPrice) || 0) *
+                        (parseInt(item.quantity) || 0)
+                    )}
                   </span>
                   <span
                     className="remove-item"
@@ -377,24 +449,16 @@ const Kasir = ({ user, onLogout }) => {
             </div>
 
             <div className="summary-row">
-              <span>Subtotal</span>
-              <span>{formatCurrency(calculateTotal())}</span>
-            </div>
-            <div className="summary-row">
-              <span>Tax (10%)</span>
-              <span>{formatCurrency(calculateTotal() * 0.1)}</span>
-            </div>
-            <div className="summary-row total">
               <span>Total</span>
-              <span>{formatCurrency(calculateTotal() * 1.1)}</span>
+              <span>{formatCurrency(calculateTotal())}</span>
             </div>
 
             <button
               className="checkout-btn"
               onClick={handleCheckout}
-              disabled={cart.length === 0}
+              disabled={cart.length === 0 || checkoutLoading}
             >
-              Checkout
+              {checkoutLoading ? "Processing..." : "Checkout"}
             </button>
           </div>
         </section>
@@ -406,7 +470,7 @@ const Kasir = ({ user, onLogout }) => {
           <div className="modal-content">
             <div className="receipt">
               <div className="receipt-header">
-                <h2 className="store-name">Warung Digital</h2>
+                <h2 className="store-name">Contact Caffe & Eatery</h2>
                 <p className="store-address">Jl. Contoh No. 123, Kota Contoh</p>
                 <p className="receipt-date">
                   {new Date(lastTransaction.date).toLocaleString("id-ID")}
@@ -416,7 +480,7 @@ const Kasir = ({ user, onLogout }) => {
               <div className="receipt-details">
                 <div className="receipt-row">
                   <span>Customer:</span>
-                  <span>{lastTransaction.customer}</span>
+                  <span>Guest</span>
                 </div>
                 <div className="receipt-row">
                   <span>Transaction ID:</span>
@@ -440,31 +504,30 @@ const Kasir = ({ user, onLogout }) => {
                     key={item.id}
                     className="receipt-item"
                   >
-                    <span>{item.productName}</span>
+                    <span>{item.productName || "Unknown Product"}</span>
                     <span>{item.quantity}</span>
-                    <span>{formatCurrency(item.price)}</span>
-                    <span>{formatCurrency(item.price * item.quantity)}</span>
+                    <span>
+                      {formatCurrency(item.price || item.sellingPrice)}
+                    </span>
+                    <span>
+                      {formatCurrency(
+                        (parseFloat(item.price || item.sellingPrice) || 0) *
+                          (parseInt(item.quantity) || 0)
+                      )}
+                    </span>
                   </div>
                 ))}
               </div>
 
               <div className="receipt-totals">
-                <div className="receipt-total-row">
-                  <span>Subtotal:</span>
-                  <span>{formatCurrency(lastTransaction.total)}</span>
-                </div>
-                <div className="receipt-total-row">
-                  <span>Tax (10%):</span>
-                  <span>{formatCurrency(lastTransaction.total * 0.1)}</span>
-                </div>
                 <div className="receipt-total-row grand-total">
-                  <span>Grand Total:</span>
-                  <span>{formatCurrency(lastTransaction.total * 1.1)}</span>
+                  <span>Total:</span>
+                  <span>{formatCurrency(lastTransaction.total)}</span>
                 </div>
               </div>
 
               <div className="receipt-footer">
-                <p>Terima kasih telah berbelanja di Warung Digital</p>
+                <p>Terima kasih telah berbelanja di Contact Caffe & Eatery</p>
               </div>
 
               <div className="receipt-actions">
