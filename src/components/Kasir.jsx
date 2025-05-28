@@ -77,7 +77,7 @@ const Kasir = ({ onLogout }) => {
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === "All" || product.servingType === selectedCategory;
+      selectedCategory === "All" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -150,56 +150,88 @@ const Kasir = ({ onLogout }) => {
       return;
     }
 
+    if (!user || !user.id) {
+      alert("Silahkan login terlebih dahulu untuk melakukan transaksi.");
+      return;
+    }
+
     setCheckoutLoading(true);
     try {
+      const subTotal = calculateTotal();
+      const total = subTotal;
+
       const transaction = {
-        items: cart.map((item) => ({
+        item: cart.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
-          price: parseFloat(item.price || item.sellingPrice) || 0,
+          price: parseFloat(item.price || item.sellingPrice),
+          productName: item.productName,
         })),
-        total: calculateTotal(),
+        total,
+        subTotal,
         paymentMethod,
-        date: new Date().toISOString(),
+        name: user.name || "Guest",
+        description: `Transaction by ${user.name || "Guest"} with ${
+          cart.length
+        } items`,
       };
 
       console.log("🛒 Sending transaction:", transaction);
+      console.log("🔄 Endpoint:", `${BACKEND_URL}/api/transactions`);
 
       const response = await fetch(`${BACKEND_URL}/api/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(transaction),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to process transaction");
+      // Log response status untuk debugging
+      console.log("📡 Response status:", response.status);
+
+      // Cek response type
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(
+          `Server returned ${response.status} with non-JSON response`
+        );
       }
 
       const result = await response.json();
       console.log("✅ Transaction result:", result);
 
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to process transaction");
+      }
+
       if (result.isSuccess) {
         setLastTransaction({
-          ...transaction,
-          id: result.data.transaction?.id || Date.now(),
-          items: cart, // Use cart items for receipt display
+          id: result.data.transaction.id,
+          date: new Date().toISOString(),
+          total: result.data.transaction.total,
+          subTotal: result.data.transaction.subTotal,
+          paymentMethod: result.data.transaction.paymentMethod,
+          customerName: result.data.transaction.name,
+          items: cart.map((item) => ({
+            ...item,
+            total: item.quantity * (item.price || item.sellingPrice),
+          })),
         });
         setShowReceipt(true);
-        // Clear cart after successful transaction
         setCart([]);
       } else {
         throw new Error(result.message || "Failed to process transaction");
       }
     } catch (error) {
       console.error("❌ Error processing transaction:", error);
-      alert(`Failed to process transaction: ${error.message}`);
+      alert(`Gagal memproses transaksi: ${error.message}`);
     } finally {
       setCheckoutLoading(false);
     }
   };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -273,7 +305,7 @@ const Kasir = ({ onLogout }) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
+            </div>{" "}
             <div className="category-filter">
               <button
                 className={`category-btn ${
@@ -285,27 +317,27 @@ const Kasir = ({ onLogout }) => {
               </button>
               <button
                 className={`category-btn ${
-                  selectedCategory === "Hot" ? "active" : ""
+                  selectedCategory === "Minuman" ? "active" : ""
                 }`}
-                onClick={() => setSelectedCategory("Hot")}
+                onClick={() => setSelectedCategory("Minuman")}
               >
-                Hot
+                Minuman
               </button>
               <button
                 className={`category-btn ${
-                  selectedCategory === "Cold" ? "active" : ""
+                  selectedCategory === "Makanan" ? "active" : ""
                 }`}
-                onClick={() => setSelectedCategory("Cold")}
+                onClick={() => setSelectedCategory("Makanan")}
               >
-                Cold
+                Makanan
               </button>
               <button
                 className={`category-btn ${
-                  selectedCategory === "Hot/Ice" ? "active" : ""
+                  selectedCategory === "Snack" ? "active" : ""
                 }`}
-                onClick={() => setSelectedCategory("Hot/Ice")}
+                onClick={() => setSelectedCategory("Snack")}
               >
-                Hot/Ice
+                Snack
               </button>
             </div>
           </div>
@@ -325,27 +357,29 @@ const Kasir = ({ onLogout }) => {
                     className="product-card"
                     onClick={() => addToCart(product)}
                   >
+                    {" "}
                     <img
                       src={
-                        product.imageUrl ||
                         product.productUrl ||
-                        "/placeholder-image.jpg"
+                        "https://ik.imagekit.io/RifqiAfandi/no-image.jpg"
                       }
                       alt={product.productName || "Product"}
                       className="product-image"
                       onError={(e) => {
-                        e.target.src = "/placeholder-image.jpg";
+                        e.target.src =
+                          "https://ik.imagekit.io/RifqiAfandi/no-image.jpg";
                       }}
                     />
                     <div className="product-details">
+                      {" "}
                       <h3 className="product-name">
                         {product.productName || "Unknown Product"}
                       </h3>
                       <p className="product-price">
-                        {formatCurrency(product.price || product.sellingPrice)}
+                        {formatCurrency(product.sellingPrice)}
                       </p>
                       <p className="product-category">
-                        {product.servingType || "N/A"}
+                        {product.category || "Unknown Category"}
                       </p>
                     </div>
                   </div>
@@ -377,16 +411,17 @@ const Kasir = ({ onLogout }) => {
                   key={item.id}
                   className="cart-item"
                 >
+                  {" "}
                   <img
                     src={
-                      item.imageUrl ||
                       item.productUrl ||
-                      "/placeholder-image.jpg"
+                      "https://ik.imagekit.io/RifqiAfandi/no-image.jpg"
                     }
                     alt={item.productName || "Product"}
                     className="item-image"
                     onError={(e) => {
-                      e.target.src = "/placeholder-image.jpg";
+                      e.target.src =
+                        "https://ik.imagekit.io/RifqiAfandi/no-image.jpg";
                     }}
                   />
                   <div className="item-details">
@@ -489,7 +524,7 @@ const Kasir = ({ onLogout }) => {
               <div className="receipt-details">
                 <div className="receipt-row">
                   <span>Customer:</span>
-                  <span>Guest</span>
+                  <span>{lastTransaction.customerName}</span>
                 </div>
                 <div className="receipt-row">
                   <span>Transaction ID:</span>
@@ -513,22 +548,19 @@ const Kasir = ({ onLogout }) => {
                     key={item.id}
                     className="receipt-item"
                   >
-                    <span>{item.productName || "Unknown Product"}</span>
+                    <span>{item.productName}</span>
                     <span>{item.quantity}</span>
-                    <span>
-                      {formatCurrency(item.price || item.sellingPrice)}
-                    </span>
-                    <span>
-                      {formatCurrency(
-                        (parseFloat(item.price || item.sellingPrice) || 0) *
-                          (parseInt(item.quantity) || 0)
-                      )}
-                    </span>
+                    <span>{formatCurrency(item.price)}</span>
+                    <span>{formatCurrency(item.total)}</span>
                   </div>
                 ))}
               </div>
 
               <div className="receipt-totals">
+                <div className="receipt-total-row">
+                  <span>Sub Total:</span>
+                  <span>{formatCurrency(lastTransaction.subTotal)}</span>
+                </div>
                 <div className="receipt-total-row grand-total">
                   <span>Total:</span>
                   <span>{formatCurrency(lastTransaction.total)}</span>

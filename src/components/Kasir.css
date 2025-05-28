@@ -260,6 +260,17 @@ html {
   font-size: 1rem;
 }
 
+.product-category {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+  text-transform: capitalize;
+  background-color: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
 /* Cart Section */
 .cart-section {
   width: 600px;
