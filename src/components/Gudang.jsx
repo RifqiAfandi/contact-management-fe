@@ -33,12 +33,31 @@ const WarehousePage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        console.log("🔄 Fetching inventory from:", `${BACKEND_URL}/api/inventory`);
-        const response = await fetch(`${BACKEND_URL}/api/inventory`);
-        
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+
+        console.log(
+          "🔄 Fetching inventory from:",
+          `${BACKEND_URL}/api/inventory`
+        );
+        const response = await fetch(`${BACKEND_URL}/api/inventory`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         console.log("📡 Response status:", response.status);
 
         if (!response.ok) {
+          if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+            return;
+          }
           throw new Error("Failed to fetch inventory");
         }
 
@@ -55,7 +74,10 @@ const WarehousePage = () => {
         }
       } catch (error) {
         console.error("❌ Error fetching inventory:", error);
-        setError("Failed to load inventory. Please try again later.");
+        setError(error.message);
+        if (error.message === "Authentication token not found") {
+          window.location.href = "/login";
+        }
       } finally {
         setIsLoading(false);
       }
@@ -108,124 +130,179 @@ const WarehousePage = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     window.location.href = "/login";
-  };  const handleSubmit = async (e) => {
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("📝 Preparing form data:", {
-        ...formData,
-        imageFile: formData.imageFile ? "Present" : "Not present"
-      });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      console.log("📝 Preparing form data...");
 
       const formDataToSend = new FormData();
       formDataToSend.append("itemName", formData.itemName);
       formDataToSend.append("purchasePrice", formData.purchasePrice);
       formDataToSend.append("expiredDate", formData.expiredDate);
       formDataToSend.append("entryDate", formData.entryDate);
+
+      // Get userId from localStorage
+      const storedUser = localStorage.getItem("user");
+      const userData = JSON.parse(storedUser);
+      formDataToSend.append("userId", userData.id);
+
+      // PERBAIKAN: Pastikan nama field konsisten dengan multer config
       if (formData.imageFile) {
         formDataToSend.append("image", formData.imageFile);
-      }      console.log(`🚀 ${editingItem ? 'Updating' : 'Creating'} inventory item...`);
+      }
+
+      // Debug: Log FormData contents
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`📋 FormData ${key}:`, value);
+      }
+
+      console.log(
+        `🚀 ${editingItem ? "Updating" : "Creating"} inventory item...`
+      );
+
       let response;
       if (editingItem) {
         response = await fetch(
           `${BACKEND_URL}/api/inventory/${editingItem.id}`,
           {
             method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              // JANGAN tambahkan Content-Type untuk FormData
+            },
             body: formDataToSend,
           }
         );
       } else {
         response = await fetch(`${BACKEND_URL}/api/inventory`, {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // JANGAN tambahkan Content-Type untuk FormData
+          },
           body: formDataToSend,
         });
       }
 
       console.log("📡 Response status:", response.status);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to save inventory item");
-      }
-
       const result = await response.json();
       console.log("📦 API Response:", result);
 
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to save inventory item");
+      }
+
       if (result.isSuccess) {
-        console.log("✅ Item saved successfully, refreshing inventory list...");
-        const inventoryResponse = await fetch(`${BACKEND_URL}/api/inventory`);
-        const inventoryResult = await inventoryResponse.json();
-        if (inventoryResult.isSuccess) {
-          setInventoryItems(inventoryResult.data);
-          setFilteredItems(inventoryResult.data);
-          handleCloseModal();
-          console.log("🔄 Inventory list refreshed");
-        } else {
-          throw new Error("Failed to refresh inventory list");
-        }
+        console.log("✅ Item saved successfully");
+        await refreshInventoryList();
+        handleCloseModal();
       } else {
         throw new Error(result.message || "Failed to save inventory item");
       }
     } catch (error) {
-      console.error("Error saving item:", error);
+      console.error("❌ Error saving item:", error);
+      if (error.message === "Authentication token not found") {
+        window.location.href = "/login";
+        return;
+      }
+      setError(error.message);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const refreshInventoryList = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/inventory`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const result = await response.json();
+
+      if (result.isSuccess) {
+        setInventoryItems(result.data);
+        setFilteredItems(result.data);
+        console.log("🔄 Inventory list refreshed");
+      } else {
+        throw new Error("Failed to refresh inventory list");
+      }
+    } catch (error) {
+      console.error("❌ Error refreshing inventory:", error);
+      setError("Failed to refresh inventory list");
+    }
+  };
   const handleEdit = (item) => {
     setEditingItem(item);
+    // Format dates to YYYY-MM-DD format for input fields
+    const formattedExpiredDate = item.expiredDate
+      ? new Date(item.expiredDate).toISOString().split("T")[0]
+      : "";
+    const formattedEntryDate = item.entryDate
+      ? new Date(item.entryDate).toISOString().split("T")[0]
+      : "";
+
     setFormData({
-      itemName: item.itemName,
-      purchasePrice: item.purchasePrice.toString(),
-      expiredDate: item.expiredDate,
-      entryDate: item.entryDate,
+      itemName: item.itemName || "",
+      purchasePrice: item.purchasePrice ? item.purchasePrice.toString() : "",
+      expiredDate: formattedExpiredDate,
+      entryDate: formattedEntryDate,
       imageFile: null,
+      // Keep the existing image URL for preview
+      currentImageUrl: item.imageUrl || null,
     });
     setIsModalOpen(true);
-  };  const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus item ini?")) {
-      setIsLoading(true);
-      setError(null);
-      try {
-        console.log("🗑️ Deleting inventory item:", id);
-        const response = await fetch(`${BACKEND_URL}/api/inventory/${id}`, {
-          method: "DELETE",
-        });
+  };
+  const handleDelete = async (id) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+      return;
+    }
 
-        console.log("📡 Response status:", response.status);
+    setIsLoading(true);
+    setError(null);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to delete inventory item");
-        }
+    try {
+      console.log("🗑️ Deleting inventory item:", id);
+      const response = await fetch(`${BACKEND_URL}/api/inventory/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-        const result = await response.json();
-        console.log("📦 API Response:", result);
+      console.log("📡 Response status:", response.status);
 
-        if (result.isSuccess) {
-          console.log("✅ Item deleted successfully, refreshing inventory list...");
-          const inventoryResponse = await fetch(`${BACKEND_URL}/api/inventory`);
-          const inventoryResult = await inventoryResponse.json();
-          if (inventoryResult.isSuccess) {
-            setInventoryItems(inventoryResult.data);
-            setFilteredItems(inventoryResult.data);
-            console.log("🔄 Inventory list refreshed");
-          } else {
-            throw new Error("Failed to refresh inventory list");
-          }
-        } else {
-          throw new Error(result.message || "Failed to delete inventory item");
-        }
-      } catch (error) {
-        console.error("❌ Error deleting item:", error);
-        setError(error.message || "Failed to delete inventory item");
-        alert(error.message || "Failed to delete inventory item");
-      } finally {
-        setIsLoading(false);
+      const result = await response.json();
+      console.log("📦 API Response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to delete inventory item");
       }
+
+      if (result.isSuccess) {
+        console.log("✅ Item deleted successfully");
+        await refreshInventoryList();
+      } else {
+        throw new Error(result.message || "Failed to delete inventory item");
+      }
+    } catch (error) {
+      console.error("❌ Error deleting item:", error);
+      setError(error.message);
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -321,7 +398,6 @@ const WarehousePage = () => {
           </button>
         </div>
       </header>
-
       {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card">
@@ -367,7 +443,6 @@ const WarehousePage = () => {
           </div>
         </div>
       </div>
-
       {/* Controls Section */}
       <div className="controls-section">
         <div className="search-box">
@@ -408,7 +483,8 @@ const WarehousePage = () => {
             Tambah Barang
           </button>
         </div>
-      </div>      {/* Inventory List */}
+      </div>{" "}
+      {/* Inventory List */}
       <div className="inventory-list">
         {error ? (
           <div className="error-state">
@@ -444,7 +520,7 @@ const WarehousePage = () => {
             >
               <div className="item-image">
                 <img
-                  src={item.itemUrl}
+                  src={item.imageUrl}
                   alt={item.itemName}
                 />
                 <div
@@ -504,11 +580,11 @@ const WarehousePage = () => {
           ))
         )}
       </div>
-
       {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
+            {" "}
             <div className="modal-header">
               <h2 className="modal-title">
                 {editingItem ? "Edit Barang" : "Tambah Barang Baru"}
@@ -520,7 +596,17 @@ const WarehousePage = () => {
                 {renderIcon("close")}
               </button>
             </div>
-
+            {formData.currentImageUrl && (
+              <div className="current-image-container">
+                <span className="current-image-label">Gambar Saat Ini:</span>
+                <div className="image-preview">
+                  <img
+                    src={formData.currentImageUrl}
+                    alt="Current"
+                  />
+                </div>
+              </div>
+            )}
             <form
               onSubmit={handleSubmit}
               className="modal-form"

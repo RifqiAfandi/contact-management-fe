@@ -100,61 +100,41 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
     setIsLoading(true);
     setErrors({});
 
-    // Simulate API call
     try {
+      console.log("🔄 Logging in...");
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.");
-      }
+      console.log("📡 Response status:", response.status);
+      const result = await response.json();
+      console.log("📦 Login response:", result);
 
-      const data = await response.json();
-      if (data.isSuccess && data.data) {
-        const { token, user } = data.data;
+      if (result.isSuccess) {
+        console.log("✅ Login successful");
+        // Store token and user data
+        localStorage.setItem("token", result.data.token);
+        localStorage.setItem("user", JSON.stringify(result.data.user));
 
-        // Store user data and token in localStorage
-        const userData = {
-          ...user,
-          name: user.name, // Fallback to username if name is not provided
-        };
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("token", token);
-
+        // Call the onLogin callback
         if (onLogin) {
-          onLogin(userData);
-        }
-
-        console.log("Login successful!", userData);
-
-        // Redirect based on user role
-        if (user.role === "admin") {
-          navigate("/admin");
-        } else if (user.role === "kasir") {
-          navigate("/kasir");
-        } else if (user.role == "gudang") {
-          navigate("/gudang");
-        } else {
-          throw new Error("Unauthorized role");
+          onLogin(result.data.user);
         }
       } else {
-        throw new Error(data.message || "Login failed");
+        console.error("❌ Login failed:", result.message);
+        setErrors({
+          general: result.message || "Login failed. Please try again.",
+        });
       }
     } catch (error) {
+      console.error("❌ Login error:", error);
       setErrors({
         general: error.message || "Login failed. Please try again.",
       });

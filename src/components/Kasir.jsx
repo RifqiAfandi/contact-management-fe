@@ -29,15 +29,31 @@ const Kasir = ({ onLogout }) => {
       setLoading(true);
       setError(null);
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+
         console.log(
           "🔄 Fetching products from:",
           `${BACKEND_URL}/api/products`
         );
-        const response = await fetch(`${BACKEND_URL}/api/products`);
+        const response = await fetch(`${BACKEND_URL}/api/products`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         console.log("📡 Response status:", response.status);
 
         if (!response.ok) {
+          if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+            return;
+          }
           throw new Error("Failed to fetch products");
         }
 
@@ -63,6 +79,9 @@ const Kasir = ({ onLogout }) => {
       } catch (error) {
         console.error("❌ Error fetching products:", error);
         setError("Failed to load products. Please try again later.");
+        if (error.message === "Authentication token not found") {
+          window.location.href = "/login";
+        }
       } finally {
         setLoading(false);
       }
@@ -155,6 +174,13 @@ const Kasir = ({ onLogout }) => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Sesi anda telah berakhir. Silahkan login kembali.");
+      window.location.href = "/login";
+      return;
+    }
+
     setCheckoutLoading(true);
     try {
       const subTotal = calculateTotal();
@@ -177,13 +203,12 @@ const Kasir = ({ onLogout }) => {
       };
 
       console.log("🛒 Sending transaction:", transaction);
-      console.log("🔄 Endpoint:", `${BACKEND_URL}/api/transactions`);
 
-      const response = await fetch(`${BACKEND_URL}/api/transactions`, {
+      const response = await fetch(`${BACKEND_URL}/api/transaction`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(transaction),
       });
@@ -226,7 +251,11 @@ const Kasir = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("❌ Error processing transaction:", error);
-      alert(`Gagal memproses transaksi: ${error.message}`);
+      if (error.message === "Authentication token not found") {
+        window.location.href = "/login";
+        return;
+      }
+      alert(`Failed to process transaction: ${error.message}`);
     } finally {
       setCheckoutLoading(false);
     }
