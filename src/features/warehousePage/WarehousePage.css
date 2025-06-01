@@ -1,7 +1,7 @@
 /* WarehousePage.css - Professional Warehouse Management Theme */
 
 /* Import theme variables (same as AdminDashboard) */
-@import url("../theme.css");
+@import url("../../theme.css");
 
 * {
   margin: 0;

@@ -1,5 +1,5 @@
 import React from "react";
-import { renderIcon } from "../utils/IconUtils";
+import { renderIcon } from "../utils/iconUtils";
 import StatsGrid from "./StatsGrid";
 import WelcomeCard from "./WelcomeCard";
 

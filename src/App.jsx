@@ -15,7 +15,7 @@ import "./App.css";
 import Login from "./features/Login";
 import AdminDashboard from "./features/adminDashboard/AdminDashboard";
 import Kasir from "./features/Kasir";
-import Gudang from "./features/Gudang";
+import Gudang from "./features/warehousePage/WarehousePage";
 
 // Page transition animation
 const pageVariants = {

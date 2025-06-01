@@ -1,6 +1,6 @@
 import React from "react";
 import StatCard from "./StatCard";
-import { statsData } from "../constants/StatData";
+import { statsData } from "../constants/statData";
 
 const StatsGrid = () => {
   return (

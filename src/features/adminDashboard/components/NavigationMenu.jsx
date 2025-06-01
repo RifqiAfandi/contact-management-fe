@@ -1,6 +1,6 @@
 import React from "react";
-import { renderIcon } from "../utils/IconUtils";
-import { navigationItems } from "../constants/NavigationItems";
+import { renderIcon } from "../utils/iconUtils";
+import { navigationItems } from "../constants/navigationItems";
 
 const NavigationMenu = ({
   activeTab,

@@ -1,5 +1,5 @@
 import React from "react";
-import { renderIcon } from "../utils/IconUtils";
+import { renderIcon } from "../utils/iconUtils";
 import NavigationMenu from "./NavigationMenu";
 
 const Sidebar = ({
