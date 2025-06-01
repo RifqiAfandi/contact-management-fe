@@ -12,7 +12,7 @@ import theme from "./styles/theme";
 import "./App.css";
 
 // Component imports
-import Login from "./features/Login";
+import Login from "./features/loginPage/LoginPage";
 import AdminDashboard from "./features/adminDashboard/AdminDashboard";
 import Kasir from "./features/Kasir";
 import Gudang from "./features/warehousePage/WarehousePage";
