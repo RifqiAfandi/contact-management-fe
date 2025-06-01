@@ -12,10 +12,10 @@ import theme from "./styles/theme";
 import "./App.css";
 
 // Component imports
-import Login from "./components/Login";
-import AdminDashboard from "./components/AdminDashboard";
-import Kasir from "./components/Kasir";
-import Gudang from "./components/Gudang";
+import Login from "./features/Login";
+import AdminDashboard from "./features/adminDashboard/AdminDashboard";
+import Kasir from "./features/Kasir";
+import Gudang from "./features/Gudang";
 
 // Page transition animation
 const pageVariants = {

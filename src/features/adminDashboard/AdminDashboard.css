@@ -1,7 +1,7 @@
 /* AdminDashboard.css - Professional Theme */
 
 /* Import theme variables */
-@import url('../theme.css');
+@import url('../../theme.css');
 
 * {
   margin: 0;
