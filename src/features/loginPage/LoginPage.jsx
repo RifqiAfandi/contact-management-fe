@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import LoginForm from "./components/LoginForm";
 import BackgroundOverlay from "./components/BackgroundOverlay";
 import { containerVariants } from "./constants/animations";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -36,6 +38,20 @@ const Login = ({ onLogin }) => {
     setShowPassword((prev) => !prev);
   };
 
+  // Handler for login success
+  const handleLoginSuccess = (user) => {
+    if (user.role === "gudang") {
+      navigate("/gudang");
+    } else if (user.role === "kasir") {
+      navigate("/kasir");
+    } else if (user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
+    if (onLogin) onLogin(user);
+  };
+
   return (
     <Box
       sx={{
@@ -49,8 +65,11 @@ const Login = ({ onLogin }) => {
       }}
     >
       <BackgroundOverlay />
-      
-      <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+
+      <Container
+        maxWidth="sm"
+        sx={{ position: "relative", zIndex: 1 }}
+      >
         <motion.div
           initial="hidden"
           animate="visible"
@@ -63,7 +82,7 @@ const Login = ({ onLogin }) => {
             showPassword={showPassword}
             onInputChange={handleInputChange}
             onTogglePassword={togglePasswordVisibility}
-            onLogin={onLogin}
+            onLogin={handleLoginSuccess}
             setErrors={setErrors}
             setIsLoading={setIsLoading}
           />
