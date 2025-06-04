@@ -59,14 +59,6 @@ const ContentArea = ({ activeTab }) => {
           </div>
         );
 
-      case "Settings":
-        return (
-          <WelcomeCard
-            title="⚙️ Pengaturan"
-            text="Kelola pengaturan sistem di sini."
-          />
-        );
-
       default:
         return (
           <WelcomeCard text={`Content for ${activeTab} tab.`} />
