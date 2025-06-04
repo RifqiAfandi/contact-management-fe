@@ -3,6 +3,7 @@ import { renderIcon } from "../utils/iconUtils";
 import StatsGrid from "./StatsGrid";
 import WelcomeCard from "./WelcomeCard";
 import StockTable from "./StockTable";
+import ProductTable from "./ProductTable";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -30,14 +31,12 @@ const ContentArea = ({ activeTab }) => {
             <h2 style={{ marginBottom: '24px' }}>📦 Manajemen Stok</h2>
             <StockTable />
           </div>
-        );
-
-      case "Produk":
+        );      case "Produk":
         return (
-          <WelcomeCard
-            title="📋 Manajemen Produk"
-            text="Kelola produk dan katalog di sini."
-          />
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>📋 Manajemen Produk</h2>
+            <ProductTable />
+          </div>
         );
 
       case "CreateUser":
