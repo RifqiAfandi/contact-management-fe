@@ -120,6 +120,8 @@ const UserTable = () => {
           limit: params.pageSize || pagination.pageSize,
           name: filters.name,
           role: filters.role,
+          sortField: params.sortField || undefined,
+          sortOrder: params.sortOrder || undefined,
         },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -128,6 +130,8 @@ const UserTable = () => {
       setData(response.data.data || response.data.items || []);
       setPagination({
         ...pagination,
+        current: params.current || pagination.current,
+        pageSize: params.pageSize || pagination.pageSize,
         total:
           response.data.total ||
           (response.data.data ? response.data.data.length : 0),
@@ -149,11 +153,16 @@ const UserTable = () => {
       ...prev,
       role: role,
     }));
-
     fetchData({
-      ...newPagination,
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
       sortField: sorter.field,
-      sortOrder: sorter.order,
+      sortOrder:
+        sorter.order === "ascend"
+          ? "asc"
+          : sorter.order === "descend"
+          ? "desc"
+          : undefined,
     });
   };
 
@@ -162,6 +171,8 @@ const UserTable = () => {
       ...prev,
       name: value,
     }));
+    // Reset to first page when searching
+    fetchData({ current: 1, pageSize: pagination.pageSize });
   };
 
   const handleEdit = (user) => {
