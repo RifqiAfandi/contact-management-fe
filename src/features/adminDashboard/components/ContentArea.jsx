@@ -2,6 +2,7 @@ import React from "react";
 import { renderIcon } from "../utils/iconUtils";
 import StatsGrid from "./StatsGrid";
 import WelcomeCard from "./WelcomeCard";
+import StockTable from "./StockTable";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -23,14 +24,12 @@ const ContentArea = ({ activeTab }) => {
             title="📊 Manajemen Laporan"
             text="Kelola dan lihat laporan sistem di sini."
           />
-        );
-
-      case "Stok":
+        );      case "Stok":
         return (
-          <WelcomeCard
-            title="📦 Manajemen Stok"
-            text="Kelola stok barang dan inventori di sini."
-          />
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>📦 Manajemen Stok</h2>
+            <StockTable />
+          </div>
         );
 
       case "Produk":
