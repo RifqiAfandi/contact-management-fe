@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { 
-  Table,
-  Input,
-  DatePicker,
-  Space,
-  Card,
-  message
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Table, Input, DatePicker, Space, Card, message } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const StockTable = () => {
   const [data, setData] = useState([]);
@@ -17,106 +10,111 @@ const StockTable = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
   const [filters, setFilters] = useState({
-    itemName: '',
+    itemName: "",
     dateFrom: null,
     dateTo: null,
     expiryFrom: null,
-    expiryTo: null
+    expiryTo: null,
   });
 
   const columns = [
     {
-      title: 'Nama Produk',
-      dataIndex: 'itemName',
-      key: 'itemName',
+      title: "Nama Produk",
+      dataIndex: "itemName",
+      key: "itemName",
       sorter: true,
     },
     {
-      title: 'Gambar',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
-      render: (imageUrl) => 
+      title: "Gambar",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      render: (imageUrl) =>
         imageUrl ? (
-          <img 
-            src={imageUrl} 
-            alt="Product" 
-            style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
+          <img
+            src={imageUrl}
+            alt="Product"
+            style={{ width: "50px", height: "50px", objectFit: "cover" }}
           />
         ) : (
           <span>No image</span>
         ),
     },
     {
-      title: 'Harga Beli',
-      dataIndex: 'purchasePrice',
-      key: 'purchasePrice',
+      title: "Harga Beli",
+      dataIndex: "purchasePrice",
+      key: "purchasePrice",
       sorter: true,
-      render: (price) => `Rp ${price.toLocaleString('id-ID')}`,
+      render: (price) => `Rp ${price.toLocaleString("id-ID")}`,
     },
     {
-      title: 'Tanggal Masuk',
-      dataIndex: 'entryDate',
-      key: 'entryDate',
-      render: (date) => dayjs(date).format('DD/MM/YYYY'),
-      sorter: true,
-    },
-    {
-      title: 'Tanggal Kadaluarsa',
-      dataIndex: 'expiredDate',
-      key: 'expiredDate',
-      render: (date) => date ? dayjs(date).format('DD/MM/YYYY') : '-',
+      title: "Tanggal Masuk",
+      dataIndex: "entryDate",
+      key: "entryDate",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
       sorter: true,
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Tanggal Kadaluarsa",
+      dataIndex: "expiredDate",
+      key: "expiredDate",
+      render: (date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-"),
+      sorter: true,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (_, record) => {
-        if (!record.expiredDate) return <span style={{ color: 'blue' }}>Non-Expired</span>;
-        
+        if (!record.expiredDate)
+          return <span style={{ color: "blue" }}>Non-Expired</span>;
+
         const now = dayjs();
         const expiry = dayjs(record.expiredDate);
-        const daysUntilExpiry = expiry.diff(now, 'day');
+        const daysUntilExpiry = expiry.diff(now, "day");
 
         if (daysUntilExpiry < 0) {
-          return <span style={{ color: 'red' }}>Kadaluarsa</span>;
+          return <span style={{ color: "red" }}>Kadaluarsa</span>;
         } else if (daysUntilExpiry < 30) {
-          return <span style={{ color: 'orange' }}>Hampir Kadaluarsa</span>;
+          return <span style={{ color: "orange" }}>Hampir Kadaluarsa</span>;
         }
-        return <span style={{ color: 'green' }}>Baik</span>;
-      }
-    }
+        return <span style={{ color: "green" }}>Baik</span>;
+      },
+    },
   ];
 
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/api/items', {
+      const response = await axios.get("http://localhost:3000/api/inventory", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,
           itemName: filters.itemName,
-          entryDateStart: filters.dateFrom?.format('YYYY-MM-DD'),
-          entryDateEnd: filters.dateTo?.format('YYYY-MM-DD'),
-          expiredDateStart: filters.expiryFrom?.format('YYYY-MM-DD'),
-          expiredDateEnd: filters.expiryTo?.format('YYYY-MM-DD'),
+          entryDateStart: filters.dateFrom?.format("YYYY-MM-DD"),
+          entryDateEnd: filters.dateTo?.format("YYYY-MM-DD"),
+          expiredDateStart: filters.expiryFrom?.format("YYYY-MM-DD"),
+          expiredDateEnd: filters.expiryTo?.format("YYYY-MM-DD"),
+          sortField: params.sortField,
+          sortOrder: params.sortOrder,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-
-      setData(response.data.items);
+      // Gunakan response.data.data dan response.data.pagination.totalItems
+      setData(response.data.data || []);
       setPagination({
         ...pagination,
-        total: response.data.total,
+        current: params.current || pagination.current,
+        pageSize: params.pageSize || pagination.pageSize,
+        total: response.data.pagination?.totalItems || 0,
       });
     } catch (error) {
-      console.error('Error fetching stock data:', error);
-      message.error('Gagal memuat data stok');
+      console.error("Error fetching stock data:", error);
+      message.error("Gagal memuat data stok");
     }
     setLoading(false);
   };
@@ -127,30 +125,39 @@ const StockTable = () => {
 
   const handleTableChange = (newPagination, filters, sorter) => {
     fetchData({
-      ...newPagination,
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
       sortField: sorter.field,
-      sortOrder: sorter.order,
+      sortOrder:
+        sorter.order === "ascend"
+          ? "asc"
+          : sorter.order === "descend"
+          ? "desc"
+          : undefined,
     });
   };
 
   const handleSearch = (value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      itemName: value
+      itemName: value,
     }));
   };
 
   const handleDateRangeChange = (dates, type) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [type + 'From']: dates?.[0] || null,
-      [type + 'To']: dates?.[1] || null,
+      [type + "From"]: dates?.[0] || null,
+      [type + "To"]: dates?.[1] || null,
     }));
   };
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+      <Space
+        direction="vertical"
+        style={{ width: "100%", marginBottom: 16 }}
+      >
         <Space wrap>
           <Input
             placeholder="Cari nama produk"
@@ -159,12 +166,12 @@ const StockTable = () => {
             style={{ width: 200 }}
           />
           <DatePicker.RangePicker
-            placeholder={['Tanggal Masuk Dari', 'Tanggal Masuk Sampai']}
-            onChange={(dates) => handleDateRangeChange(dates, 'date')}
+            placeholder={["Tanggal Masuk Dari", "Tanggal Masuk Sampai"]}
+            onChange={(dates) => handleDateRangeChange(dates, "date")}
           />
           <DatePicker.RangePicker
-            placeholder={['Kadaluarsa Dari', 'Kadaluarsa Sampai']}
-            onChange={(dates) => handleDateRangeChange(dates, 'expiry')}
+            placeholder={["Kadaluarsa Dari", "Kadaluarsa Sampai"]}
+            onChange={(dates) => handleDateRangeChange(dates, "expiry")}
           />
         </Space>
       </Space>
