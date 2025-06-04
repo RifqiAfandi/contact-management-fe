@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { 
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
   Table,
   Input,
   Space,
@@ -9,15 +9,19 @@ import {
   Button,
   Modal,
   Form,
-  message
-} from 'antd';
-import { SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+  message,
+} from "antd";
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 
 const { Option } = Select;
 
 const ROLES = [
-  { value: 'kasir', label: 'Kasir' },
-  { value: 'gudang', label: 'Gudang' }
+  { value: "kasir", label: "Kasir" },
+  { value: "gudang", label: "Gudang" },
 ];
 
 const UserTable = () => {
@@ -29,35 +33,40 @@ const UserTable = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
   const [filters, setFilters] = useState({
-    name: '',
-    role: undefined
+    name: "",
+    role: undefined,
   });
 
   const columns = [
     {
-      title: 'Foto Profil',
-      dataIndex: 'profilUrl',
-      key: 'profilUrl',
-      render: (profilUrl) => 
+      title: "Foto Profil",
+      dataIndex: "profilUrl",
+      key: "profilUrl",
+      render: (profilUrl) =>
         profilUrl ? (
-          <img 
-            src={profilUrl} 
-            alt="Profile" 
-            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+          <img
+            src={profilUrl}
+            alt="Profile"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
           />
         ) : (
-          <div 
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '50%', 
-              backgroundColor: '#f0f0f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: "#f0f0f0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <span>No img</span>
@@ -65,33 +74,33 @@ const UserTable = () => {
         ),
     },
     {
-      title: 'Nama',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Nama",
+      dataIndex: "name",
+      key: "name",
       sorter: true,
     },
     {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-      filters: ROLES.map(role => ({ text: role.label, value: role.value })),
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: ROLES.map((role) => ({ text: role.label, value: role.value })),
       render: (role) => role.charAt(0).toUpperCase() + role.slice(1),
     },
     {
-      title: 'Aksi',
-      key: 'action',
+      title: "Aksi",
+      key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
             Edit
           </Button>
-          <Button 
-            type="primary" 
-            danger 
+          <Button
+            type="primary"
+            danger
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
           >
@@ -99,13 +108,13 @@ const UserTable = () => {
           </Button>
         </Space>
       ),
-    }
+    },
   ];
 
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/api/users', {
+      const response = await axios.get("http://localhost:3000/api/auth/users", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,
@@ -113,18 +122,19 @@ const UserTable = () => {
           role: filters.role,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-
-      setData(response.data.items);
+      setData(response.data.data || response.data.items || []);
       setPagination({
         ...pagination,
-        total: response.data.total,
+        total:
+          response.data.total ||
+          (response.data.data ? response.data.data.length : 0),
       });
     } catch (error) {
-      console.error('Error fetching user data:', error);
-      message.error('Gagal memuat data pengguna');
+      console.error("Error fetching user data:", error);
+      message.error("Gagal memuat data pengguna");
     }
     setLoading(false);
   };
@@ -135,11 +145,11 @@ const UserTable = () => {
 
   const handleTableChange = (newPagination, tableFilters, sorter) => {
     const role = tableFilters.role?.[0];
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      role: role
+      role: role,
     }));
-    
+
     fetchData({
       ...newPagination,
       sortField: sorter.field,
@@ -148,9 +158,9 @@ const UserTable = () => {
   };
 
   const handleSearch = (value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      name: value
+      name: value,
     }));
   };
 
@@ -167,51 +177,64 @@ const UserTable = () => {
 
   const handleDelete = async (user) => {
     Modal.confirm({
-      title: 'Konfirmasi Hapus',
+      title: "Konfirmasi Hapus",
       content: `Apakah Anda yakin ingin menghapus pengguna ${user.name}?`,
-      okText: 'Ya',
-      cancelText: 'Tidak',
+      okText: "Ya",
+      cancelText: "Tidak",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:3000/api/users/${user.id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+          await axios.delete(
+            `http://localhost:3000/api/auth/users/${user.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
-          });
-          message.success('Pengguna berhasil dihapus');
+          );
+          message.success("Pengguna berhasil dihapus");
           fetchData();
         } catch (error) {
-          console.error('Error deleting user:', error);
-          message.error('Gagal menghapus pengguna');
+          console.error("Error deleting user:", error);
+          message.error("Gagal menghapus pengguna");
         }
-      }
+      },
     });
   };
 
   const handleEditSubmit = async (values) => {
     try {
-      const payload = { ...values };
-      if (!payload.password) {
-        delete payload.password; // Don't send password if it's empty
-      }
-
-      await axios.put(`http://localhost:3000/api/users/${editingUser.id}`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("username", values.username);
+      formData.append("role", values.role);
+      if (values.password) formData.append("password", values.password);
+      if (values.profilUrl) formData.append("profilUrl", values.profilUrl);
+      // If you support image upload, add: if (values.image) formData.append("image", values.image.originFileObj);
+      await axios.put(
+        `http://localhost:3000/api/auth/users/${editingUser.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            // Let browser set Content-Type for FormData
+          },
         }
-      });
-      message.success('Data pengguna berhasil diperbarui');
+      );
+      message.success("Data pengguna berhasil diperbarui");
       setEditModalVisible(false);
       fetchData();
     } catch (error) {
-      console.error('Error updating user:', error);
-      message.error('Gagal memperbarui data pengguna');
+      console.error("Error updating user:", error);
+      message.error("Gagal memperbarui data pengguna");
     }
   };
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+      <Space
+        direction="vertical"
+        style={{ width: "100%", marginBottom: 16 }}
+      >
         <Space wrap>
           <Input
             placeholder="Cari nama pengguna"
@@ -249,7 +272,7 @@ const UserTable = () => {
           <Form.Item
             name="name"
             label="Nama"
-            rules={[{ required: true, message: 'Nama wajib diisi' }]}
+            rules={[{ required: true, message: "Nama wajib diisi" }]}
           >
             <Input />
           </Form.Item>
@@ -264,7 +287,7 @@ const UserTable = () => {
           <Form.Item
             name="username"
             label="Username"
-            rules={[{ required: true, message: 'Username wajib diisi' }]}
+            rules={[{ required: true, message: "Username wajib diisi" }]}
           >
             <Input />
           </Form.Item>
@@ -280,24 +303,34 @@ const UserTable = () => {
           <Form.Item
             name="role"
             label="Role"
-            rules={[{ required: true, message: 'Role wajib dipilih' }]}
+            rules={[{ required: true, message: "Role wajib dipilih" }]}
           >
             <Select>
-              {ROLES.map(role => (
-                <Option key={role.value} value={role.value}>{role.label}</Option>
+              {ROLES.map((role) => (
+                <Option
+                  key={role.value}
+                  value={role.value}
+                >
+                  {role.label}
+                </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+              >
                 Simpan
               </Button>
-              <Button onClick={() => {
-                setEditModalVisible(false);
-                form.resetFields();
-              }}>
+              <Button
+                onClick={() => {
+                  setEditModalVisible(false);
+                  form.resetFields();
+                }}
+              >
                 Batal
               </Button>
             </Space>
