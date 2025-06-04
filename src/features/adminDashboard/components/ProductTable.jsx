@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { 
-  Table,
-  Input,
-  Space,
-  Card,
-  Select,
-  InputNumber,
-  message
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Table, Input, Space, Card, Select, InputNumber, message } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
 const CATEGORIES = [
-  { value: 'Minuman', label: 'Minuman' },
-  { value: 'Makanan', label: 'Makanan' },
-  { value: 'Snack', label: 'Snack' }
+  { value: "Minuman", label: "Minuman" },
+  { value: "Makanan", label: "Makanan" },
+  { value: "Snack", label: "Snack" },
 ];
 
 const ProductTable = () => {
@@ -25,57 +17,57 @@ const ProductTable = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
   const [filters, setFilters] = useState({
-    productName: '',
+    productName: "",
     category: undefined,
     minPrice: null,
-    maxPrice: null
+    maxPrice: null,
   });
 
   const columns = [
     {
-      title: 'Nama Produk',
-      dataIndex: 'productName',
-      key: 'productName',
+      title: "Nama Produk",
+      dataIndex: "productName",
+      key: "productName",
       sorter: true,
     },
     {
-      title: 'Gambar',
-      dataIndex: 'productUrl',
-      key: 'productUrl',
-      render: (productUrl) => 
+      title: "Gambar",
+      dataIndex: "productUrl",
+      key: "productUrl",
+      render: (productUrl) =>
         productUrl ? (
-          <img 
-            src={productUrl} 
-            alt="Product" 
-            style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
+          <img
+            src={productUrl}
+            alt="Product"
+            style={{ width: "50px", height: "50px", objectFit: "cover" }}
           />
         ) : (
           <span>No image</span>
         ),
     },
     {
-      title: 'Kategori',
-      dataIndex: 'category',
-      key: 'category',
+      title: "Kategori",
+      dataIndex: "category",
+      key: "category",
       filters: CATEGORIES,
       filterMultiple: false,
     },
     {
-      title: 'Harga Jual',
-      dataIndex: 'sellingPrice',
-      key: 'sellingPrice',
+      title: "Harga Jual",
+      dataIndex: "sellingPrice",
+      key: "sellingPrice",
       sorter: true,
-      render: (price) => `Rp ${price.toLocaleString('id-ID')}`,
-    }
+      render: (price) => `Rp ${price.toLocaleString("id-ID")}`,
+    },
   ];
 
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/api/products', {
+      const response = await axios.get("http://localhost:3000/api/products", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,
@@ -83,20 +75,23 @@ const ProductTable = () => {
           category: filters.category,
           minPrice: filters.minPrice,
           maxPrice: filters.maxPrice,
+          sortField: params.sortField,
+          sortOrder: params.sortOrder,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-
-      setData(response.data.items);
+      setData(response.data.data || []);
       setPagination({
         ...pagination,
-        total: response.data.total,
+        current: params.current || pagination.current,
+        pageSize: params.pageSize || pagination.pageSize,
+        total: response.data.pagination?.totalItems || 0,
       });
     } catch (error) {
-      console.error('Error fetching product data:', error);
-      message.error('Gagal memuat data produk');
+      console.error("Error fetching product data:", error);
+      message.error("Gagal memuat data produk");
     }
     setLoading(false);
   };
@@ -107,35 +102,43 @@ const ProductTable = () => {
 
   const handleTableChange = (newPagination, tableFilters, sorter) => {
     const category = tableFilters.category?.[0];
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      category: category
+      category: category,
     }));
-    
     fetchData({
-      ...newPagination,
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
       sortField: sorter.field,
-      sortOrder: sorter.order,
+      sortOrder:
+        sorter.order === "ascend"
+          ? "asc"
+          : sorter.order === "descend"
+          ? "desc"
+          : undefined,
     });
   };
 
   const handleSearch = (value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      productName: value
+      productName: value,
     }));
   };
 
   const handlePriceRangeChange = (type, value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [type]: value
+      [type]: value,
     }));
   };
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+      <Space
+        direction="vertical"
+        style={{ width: "100%", marginBottom: 16 }}
+      >
         <Space wrap>
           <Input
             placeholder="Cari nama produk"
@@ -148,18 +151,22 @@ const ProductTable = () => {
             <InputNumber
               placeholder="Min Harga"
               style={{ width: 120 }}
-              onChange={(value) => handlePriceRangeChange('minPrice', value)}
-              formatter={value => `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value.replace(/\Rp\s?|(,*)/g, '')}
+              onChange={(value) => handlePriceRangeChange("minPrice", value)}
+              formatter={(value) =>
+                `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => value.replace(/\Rp\s?|(,*)/g, "")}
               min={0}
             />
             <span>-</span>
             <InputNumber
               placeholder="Max Harga"
               style={{ width: 120 }}
-              onChange={(value) => handlePriceRangeChange('maxPrice', value)}
-              formatter={value => `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value.replace(/\Rp\s?|(,*)/g, '')}
+              onChange={(value) => handlePriceRangeChange("maxPrice", value)}
+              formatter={(value) =>
+                `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => value.replace(/\Rp\s?|(,*)/g, "")}
               min={0}
             />
           </Space>
