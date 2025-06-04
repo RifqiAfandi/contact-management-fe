@@ -4,6 +4,7 @@ import StatsGrid from "./StatsGrid";
 import WelcomeCard from "./WelcomeCard";
 import StockTable from "./StockTable";
 import ProductTable from "./ProductTable";
+import UserTable from "./UserTable";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -25,13 +26,17 @@ const ContentArea = ({ activeTab }) => {
             title="📊 Manajemen Laporan"
             text="Kelola dan lihat laporan sistem di sini."
           />
-        );      case "Stok":
+        );
+
+      case "Stok":
         return (
           <div>
             <h2 style={{ marginBottom: '24px' }}>📦 Manajemen Stok</h2>
             <StockTable />
           </div>
-        );      case "Produk":
+        );
+
+      case "Produk":
         return (
           <div>
             <h2 style={{ marginBottom: '24px' }}>📋 Manajemen Produk</h2>
@@ -49,10 +54,10 @@ const ContentArea = ({ activeTab }) => {
 
       case "UserList":
         return (
-          <WelcomeCard
-            title="👥 Daftar User"
-            text="Daftar semua user sistem akan ditampilkan di sini."
-          />
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>👥 Daftar Pengguna</h2>
+            <UserTable />
+          </div>
         );
 
       case "Settings":
