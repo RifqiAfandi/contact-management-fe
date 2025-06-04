@@ -5,6 +5,7 @@ import WelcomeCard from "./WelcomeCard";
 import StockTable from "./StockTable";
 import ProductTable from "./ProductTable";
 import UserTable from "./UserTable";
+import CreateUserForm from "./CreateUserForm";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -42,14 +43,12 @@ const ContentArea = ({ activeTab }) => {
             <h2 style={{ marginBottom: '24px' }}>📋 Manajemen Produk</h2>
             <ProductTable />
           </div>
-        );
-
-      case "CreateUser":
+        );      case "CreateUser":
         return (
-          <WelcomeCard
-            title="👤 Buat User Baru"
-            text="Form untuk membuat user baru akan ditampilkan di sini."
-          />
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>👤 Buat User Baru</h2>
+            <CreateUserForm />
+          </div>
         );
 
       case "UserList":
