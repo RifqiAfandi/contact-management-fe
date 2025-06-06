@@ -42,41 +42,15 @@ const UserTable = () => {
 
   const columns = [
     {
-      title: "Foto Profil",
-      dataIndex: "profilUrl",
-      key: "profilUrl",
-      render: (profilUrl) =>
-        profilUrl ? (
-          <img
-            src={profilUrl}
-            alt="Profile"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              backgroundColor: "#f0f0f0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span>No img</span>
-          </div>
-        ),
-    },
-    {
       title: "Nama",
       dataIndex: "name",
       key: "name",
+      sorter: true,
+    },
+    {
+      title: "Username",
+      dataIndex: "username",
+      key: "username",
       sorter: true,
     },
     {
@@ -179,7 +153,6 @@ const UserTable = () => {
     setEditingUser(user);
     form.setFieldsValue({
       name: user.name,
-      profilUrl: user.profilUrl,
       username: user.username,
       role: user.role,
     });
@@ -214,20 +187,23 @@ const UserTable = () => {
 
   const handleEditSubmit = async (values) => {
     try {
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("username", values.username);
-      formData.append("role", values.role);
-      if (values.password) formData.append("password", values.password);
-      if (values.profilUrl) formData.append("profilUrl", values.profilUrl);
-      // If you support image upload, add: if (values.image) formData.append("image", values.image.originFileObj);
+      const payload = {
+        name: values.name,
+        username: values.username,
+        role: values.role,
+      };
+
+      if (values.password) {
+        payload.password = values.password;
+      }
+
       await axios.put(
         `http://localhost:3000/api/auth/users/${editingUser.id}`,
-        formData,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            // Let browser set Content-Type for FormData
+            "Content-Type": "application/json",
           },
         }
       );
@@ -284,13 +260,6 @@ const UserTable = () => {
             name="name"
             label="Nama"
             rules={[{ required: true, message: "Nama wajib diisi" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="profilUrl"
-            label="URL Foto Profil"
           >
             <Input />
           </Form.Item>
