@@ -39,7 +39,7 @@ const ProductTable = () => {
   const [createForm] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 5,
     total: 0,
   });
   const [filters, setFilters] = useState({
