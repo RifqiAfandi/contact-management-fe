@@ -184,17 +184,16 @@ const Kasir = ({ onLogout }) => {
     setCheckoutLoading(true);
     try {
       const subTotal = calculateTotal();
-      const total = subTotal;
-
-      const transaction = {
+      const total = subTotal;      const transaction = {
         item: cart.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
           price: parseFloat(item.price || item.sellingPrice),
           productName: item.productName,
+          category: item.category,
         })),
-        total,
-        subTotal,
+        total: parseFloat(total.toFixed(2)),
+        subTotal: parseFloat(subTotal.toFixed(2)),
         paymentMethod,
         name: user.name || "Guest",
         description: `Transaction by ${user.name || "Guest"} with ${
@@ -202,9 +201,7 @@ const Kasir = ({ onLogout }) => {
         } items`,
       };
 
-      console.log("🛒 Sending transaction:", transaction);
-
-      const response = await fetch(`${BACKEND_URL}/api/transaction`, {
+      console.log("🛒 Sending transaction:", transaction);      const response = await fetch(`${BACKEND_URL}/api/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
