@@ -14,7 +14,7 @@ import "./App.css";
 // Component imports
 import Login from "./features/loginPage/LoginPage";
 import AdminDashboard from "./features/adminDashboard/AdminDashboard";
-import Kasir from "./features/Kasir";
+import CashierPage from "./features/cashierPage/CashierPage";
 import Gudang from "./features/warehousePage/WarehousePage";
 
 // Page transition animation
@@ -90,12 +90,11 @@ function AppContent() {
                 <AdminDashboard />
               </AnimatedRoute>
             }
-          />
-          <Route
+          />          <Route
             path="/kasir"
             element={
               <AnimatedRoute>
-                <Kasir />
+                <CashierPage />
               </AnimatedRoute>
             }
           />
