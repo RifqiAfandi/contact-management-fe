@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import MainContent from "./components/MainContent";
+import { logout } from "../../utils/authUtils";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
@@ -18,14 +19,13 @@ const AdminDashboard = () => {
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
-
   const toggleUserDropdown = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
     setActiveTab("Users");
   };
 
   const handleLogout = () => {
-    window.location.href = "/login";
+    logout();
   };
 
   return (
