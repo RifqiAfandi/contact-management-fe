@@ -88,7 +88,7 @@ const UserTable = () => {
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/auth/users", {
+      const response = await axios.get("http://localhost:5000/api/auth/users", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,
@@ -168,7 +168,7 @@ const UserTable = () => {
       onOk: async () => {
         try {
           await axios.delete(
-            `http://localhost:3000/api/auth/users/${user.id}`,
+            `http://localhost:5000/api/auth/users/${user.id}`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -198,7 +198,7 @@ const UserTable = () => {
       }
 
       await axios.put(
-        `http://localhost:3000/api/auth/users/${editingUser.id}`,
+        `http://localhost:5000/api/auth/users/${editingUser.id}`,
         payload,
         {
           headers: {

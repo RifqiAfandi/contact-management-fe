@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Kasir.css";
 
-const BACKEND_URL = "http://localhost:3000"; // Replace with your backend URL
+const BACKEND_URL = "http://localhost:5000"; // Replace with your backend URL
 
 const Kasir = ({ onLogout }) => {
   const [user, setUser] = useState(null);

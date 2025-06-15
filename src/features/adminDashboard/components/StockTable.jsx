@@ -88,7 +88,7 @@ const StockTable = () => {
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/inventory", {
+      const response = await axios.get("http://localhost:5000/api/inventory", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,

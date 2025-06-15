@@ -36,7 +36,7 @@ const CreateUserForm = () => {
       if (values.profilImage && values.profilImage.file) {
         formData.append("image", values.profilImage.file);
       }
-      await axios.post("http://localhost:3000/api/auth/users", formData, {
+      await axios.post("http://localhost:5000/api/auth/users", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           // Jangan set Content-Type, biarkan browser yang mengatur

@@ -113,7 +113,7 @@ const ProductTable = () => {
   const fetchData = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/products", {
+      const response = await axios.get("http://localhost:5000/api/products", {
         params: {
           page: params.current || pagination.current,
           limit: params.pageSize || pagination.pageSize,
@@ -198,7 +198,7 @@ const ProductTable = () => {
       cancelText: "Tidak",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:3000/api/products/${product.id}`, {
+          await axios.delete(`http://localhost:5000/api/products/${product.id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -225,7 +225,7 @@ const ProductTable = () => {
       }
 
       await axios.put(
-        `http://localhost:3000/api/products/${editingProduct.id}`,
+        `http://localhost:5000/api/products/${editingProduct.id}`,
         formData,
         {
           headers: {
@@ -255,7 +255,7 @@ const ProductTable = () => {
         formData.append("productImage", values.productUrl.file.originFileObj);
       }
 
-      await axios.post("http://localhost:3000/api/products", formData, {
+      await axios.post("http://localhost:5000/api/products", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
