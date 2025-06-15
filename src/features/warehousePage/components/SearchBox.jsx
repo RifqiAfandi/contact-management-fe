@@ -4,7 +4,7 @@ import { renderIcon } from "../utils/iconUtils";
 const SearchBox = ({ searchTerm, onSearchChange }) => {
   return (
     <div className="search-box">
-      {renderIcon("search")}
+      <span className="icon">{renderIcon("search")}</span>
       <input
         type="text"
         placeholder="Cari nama barang..."
