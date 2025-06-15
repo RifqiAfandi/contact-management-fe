@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchProducts } from '../utils/apiUtils.js';
+import { logout } from '../../../utils/authUtils.js';
 
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -17,7 +18,7 @@ export const useProducts = () => {
         console.error("❌ Error fetching products:", error);
         setError("Failed to load products. Please try again later.");
         if (error.message === "Authentication token not found") {
-          window.location.href = "/login";
+          logout();
         }
       } finally {
         setLoading(false);

@@ -1,7 +1,7 @@
 /* Kasir Page Styles - Professional Point of Sale Theme */
 
 /* Import theme variables (same as Gudang and AdminDashboard) */
-@import url("../theme.css");
+@import url("../../theme.css");
 
 * {
   margin: 0;

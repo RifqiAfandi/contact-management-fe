@@ -1,4 +1,5 @@
 import { BACKEND_URL } from '../constants/config.js';
+import { logout } from '../../../utils/authUtils.js';
 
 export const fetchProducts = async () => {
   const token = localStorage.getItem("token");
@@ -18,9 +19,7 @@ export const fetchProducts = async () => {
 
   if (!response.ok) {
     if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      logout(); // Use centralized logout
       return;
     }
     throw new Error("Failed to fetch products");
@@ -76,6 +75,10 @@ export const createTransaction = async (transactionData) => {
   console.log("✅ Transaction result:", result);
 
   if (!response.ok) {
+    if (response.status === 401) {
+      logout(); // Use centralized logout
+      return;
+    }
     throw new Error(result.message || "Failed to process transaction");
   }
 

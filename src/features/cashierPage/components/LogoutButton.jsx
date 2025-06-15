@@ -1,10 +1,9 @@
 import React from 'react';
-import { clearStorage, redirectToLogin } from '../utils/storageUtils.js';
+import { logout } from '../../../utils/authUtils.js';
 
 const LogoutButton = () => {
   const handleLogout = () => {
-    clearStorage();
-    redirectToLogin();
+    logout();
   };
 
   return (

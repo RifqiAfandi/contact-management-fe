@@ -3,6 +3,7 @@ import { createTransaction } from '../utils/apiUtils.js';
 import { createTransactionPayload, createReceiptData } from '../utils/cashierUtils.js';
 import { calculateCartTotal } from '../utils/formatUtils.js';
 import { PAYMENT_METHODS } from '../constants/config.js';
+import { logout } from '../../../utils/authUtils.js';
 
 export const useCheckout = () => {
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.CASH);
@@ -24,7 +25,7 @@ export const useCheckout = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Sesi anda telah berakhir. Silahkan login kembali.");
-      window.location.href = "/login";
+      logout();
       return;
     }
 
@@ -50,7 +51,7 @@ export const useCheckout = () => {
     } catch (error) {
       console.error("❌ Error processing transaction:", error);
       if (error.message === "Authentication token not found") {
-        window.location.href = "/login";
+        logout();
         return;
       }
       alert(`Failed to process transaction: ${error.message}`);

@@ -16,6 +16,8 @@ import Login from "./features/loginPage/LoginPage";
 import AdminDashboard from "./features/adminDashboard/AdminDashboard";
 import CashierPage from "./features/cashierPage/CashierPage";
 import Gudang from "./features/warehousePage/WarehousePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthRedirect from "./components/AuthRedirect";
 
 // Page transition animation
 const pageVariants = {
@@ -64,8 +66,7 @@ function AppContent() {
         overflow: "hidden"
       }}
     >
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
+      <AnimatePresence mode="wait">        <Routes location={location} key={location.pathname}>
           <Route
             path="/"
             element={
@@ -79,7 +80,9 @@ function AppContent() {
             path="/login"
             element={
               <AnimatedRoute>
-                <Login />
+                <AuthRedirect>
+                  <Login />
+                </AuthRedirect>
               </AnimatedRoute>
             }
           />
@@ -87,14 +90,19 @@ function AppContent() {
             path="/admin"
             element={
               <AnimatedRoute>
-                <AdminDashboard />
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
               </AnimatedRoute>
             }
-          />          <Route
+          />
+          <Route
             path="/kasir"
             element={
               <AnimatedRoute>
-                <CashierPage />
+                <ProtectedRoute allowedRoles={['kasir']}>
+                  <CashierPage />
+                </ProtectedRoute>
               </AnimatedRoute>
             }
           />
@@ -102,29 +110,31 @@ function AppContent() {
             path="/dashboard"
             element={
               <AnimatedRoute>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    height: '100vh' 
-                  }}
-                >
-                  <Box
-                    component={motion.div}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
+                <ProtectedRoute>
+                  <Box 
                     sx={{ 
-                      p: 4, 
-                      bgcolor: 'background.paper', 
-                      borderRadius: 2, 
-                      boxShadow: 3 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      alignItems: 'center', 
+                      height: '100vh' 
                     }}
                   >
-                    User Dashboard Coming Soon
+                    <Box
+                      component={motion.div}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                      sx={{ 
+                        p: 4, 
+                        bgcolor: 'background.paper', 
+                        borderRadius: 2, 
+                        boxShadow: 3 
+                      }}
+                    >
+                      User Dashboard Coming Soon
+                    </Box>
                   </Box>
-                </Box>
+                </ProtectedRoute>
               </AnimatedRoute>
             }
           />
@@ -132,7 +142,9 @@ function AppContent() {
             path="/gudang"
             element={
               <AnimatedRoute>
-                <Gudang />
+                <ProtectedRoute allowedRoles={['gudang']}>
+                  <Gudang />
+                </ProtectedRoute>
               </AnimatedRoute>
             }
           />
