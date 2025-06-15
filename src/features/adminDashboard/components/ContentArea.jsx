@@ -6,6 +6,7 @@ import StockTable from "./StockTable";
 import ProductTable from "./ProductTable";
 import UserTable from "./UserTable";
 import CreateUserForm from "./CreateUserForm";
+import FinancialReport from "./FinancialReport";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -19,14 +20,12 @@ const ContentArea = ({ activeTab }) => {
               text="Kelola sistem Anda dengan mudah melalui dashboard ini. Gunakan menu di sebelah kiri untuk navigasi ke berbagai fitur yang tersedia."
             />
           </div>
-        );
-
-      case "Laporan":
+        );      case "Laporan":
         return (
-          <WelcomeCard
-            title="📊 Manajemen Laporan"
-            text="Kelola dan lihat laporan sistem di sini."
-          />
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>📊 Laporan Keuangan</h2>
+            <FinancialReport />
+          </div>
         );
 
       case "Stok":

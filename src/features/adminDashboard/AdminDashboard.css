@@ -371,6 +371,149 @@
   font-size: 1rem;
 }
 
+/* Financial Report Styles */
+.financial-report {
+  margin-bottom: var(--space-xl);
+}
+
+.report-card {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--neutral-200);
+}
+
+.report-card .ant-card-head {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: none;
+}
+
+.report-card .ant-card-head-title {
+  color: white;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.month-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--neutral-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-200);
+}
+
+.current-month {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.month-picker {
+  min-width: 200px;
+}
+
+.month-picker .ant-picker {
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.nav-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.report-statistics {
+  margin-top: var(--space-lg);
+}
+
+.stat-card {
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--neutral-200);
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card.expenses {
+  border-left: 4px solid #f5222d;
+}
+
+.stat-card.revenue {
+  border-left: 4px solid #52c41a;
+}
+
+.stat-card.profit.positive {
+  border-left: 4px solid #52c41a;
+}
+
+.stat-card.profit.negative {
+  border-left: 4px solid #f5222d;
+}
+
+.stat-card .ant-statistic-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-description {
+  margin-top: var(--space-sm);
+  font-size: 0.875rem;
+  color: var(--neutral-500);
+  line-height: 1.4;
+}
+
+.no-data {
+  text-align: center;
+  padding: var(--space-xxl);
+  color: var(--neutral-500);
+}
+
+.no-data-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-lg);
+  opacity: 0.5;
+}
+
+.no-data h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+  margin-bottom: var(--space-sm);
+}
+
+.no-data p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .stats-grid {
@@ -414,6 +557,25 @@
   .main-header {
     padding: var(--space-sm) var(--space-md);
   }
+
+  .month-navigation {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+  
+  .month-navigation .nav-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .report-statistics .ant-col {
+    margin-bottom: var(--space-md);
+  }
+  
+  .stat-card .ant-statistic-content {
+    font-size: 1.25rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -427,5 +589,17 @@
   
   .welcome-title {
     font-size: 1.25rem;
+  }
+
+  .month-picker {
+    min-width: 150px;
+  }
+  
+  .stat-card .ant-statistic-content {
+    font-size: 1.1rem;
+  }
+  
+  .no-data-icon {
+    font-size: 3rem;
   }
 }
