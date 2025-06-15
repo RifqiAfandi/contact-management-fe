@@ -11,8 +11,7 @@ const Kasir = ({ onLogout }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, []);
-  const [cart, setCart] = useState([]);
+  }, []);  const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -195,10 +194,8 @@ const Kasir = ({ onLogout }) => {
         total: parseFloat(total.toFixed(2)),
         subTotal: parseFloat(subTotal.toFixed(2)),
         paymentMethod,
-        name: user.name || "Guest",
-        description: `Transaction by ${user.name || "Guest"} with ${
-          cart.length
-        } items`,
+        name: "Guest",
+        description: `Transaction by Guest with ${cart.length} items`,
       };
 
       console.log("🛒 Sending transaction:", transaction);      const response = await fetch(`${BACKEND_URL}/api/transactions`, {
@@ -262,9 +259,7 @@ const Kasir = ({ onLogout }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     window.location.href = "/login";
-  };
-
-  // Reset after transaction
+  };  // Reset after transaction
   const resetTransaction = () => {
     setCart([]);
     setShowReceipt(false);
@@ -420,9 +415,7 @@ const Kasir = ({ onLogout }) => {
           <div className="cart-header">
             <h3 className="cart-title">Keranjang</h3>
             <p className="cart-subtitle">{cart.length} item</p>
-          </div>
-
-          <div className="cart-items">
+          </div>          <div className="cart-items">
             {cart.length === 0 ? (
               <div className="cart-empty">
                 <span className="empty-icon">🛒</span>
@@ -432,65 +425,51 @@ const Kasir = ({ onLogout }) => {
                 </p>
               </div>
             ) : (
-              cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="cart-item"
-                >
-                  {" "}
-                  <img
-                    src={
-                      item.productUrl ||
-                      "https://ik.imagekit.io/RifqiAfandi/no-image.jpg"
-                    }
-                    alt={item.productName || "Product"}
-                    className="item-image"
-                    onError={(e) => {
-                      e.target.src =
-                        "https://ik.imagekit.io/RifqiAfandi/no-image.jpg";
-                    }}
-                  />
-                  <div className="item-details">
-                    <h4 className="item-name">
-                      {item.productName || "Unknown Product"}
-                    </h4>
-                    <p className="item-price">
-                      {formatCurrency(item.price || item.sellingPrice)}
-                    </p>
+              <div className="cart-list">
+                {cart.map((item, index) => (
+                  <div key={item.id} className="cart-list-item">
+                    <div className="item-number">{index + 1}</div>
+                    <div className="item-info">
+                      <div className="item-name-row">
+                        <span className="item-name">{item.productName || "Unknown Product"}</span>
+                        <button 
+                          className="remove-item-btn"
+                          onClick={() => removeFromCart(item.id)}
+                          title="Remove item"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="item-details-row">
+                        <span className="item-price">{formatCurrency(item.price || item.sellingPrice)}</span>
+                        <div className="item-quantity-controls">
+                          <button
+                            className="quantity-btn minus"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            -
+                          </button>
+                          <span className="quantity-display">{item.quantity}</span>
+                          <button
+                            className="quantity-btn plus"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            +
+                          </button>
+                        </div>
+                        <span className="item-total">
+                          {formatCurrency(
+                            (parseFloat(item.price || item.sellingPrice) || 0) *
+                              (parseInt(item.quantity) || 0)
+                          )}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="item-quantity">
-                    <button
-                      className="quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    >
-                      -
-                    </button>
-                    <span className="item-quantity-value">{item.quantity}</span>
-                    <button
-                      className="quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className="item-total">
-                    {formatCurrency(
-                      (parseFloat(item.price || item.sellingPrice) || 0) *
-                        (parseInt(item.quantity) || 0)
-                    )}
-                  </span>
-                  <span
-                    className="remove-item"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    ×
-                  </span>
-                </div>
-              ))
+                ))}
+              </div>
             )}
-          </div>
-
-          <div className="cart-summary">
+          </div><div className="cart-summary">
             <div className="payment-methods">
               <div
                 className={`payment-method ${
@@ -498,15 +477,7 @@ const Kasir = ({ onLogout }) => {
                 }`}
                 onClick={() => setPaymentMethod("cash")}
               >
-                Cash
-              </div>
-              <div
-                className={`payment-method ${
-                  paymentMethod === "card" ? "active" : ""
-                }`}
-                onClick={() => setPaymentMethod("card")}
-              >
-                Card
+                💵 Cash
               </div>
               <div
                 className={`payment-method ${
@@ -514,11 +485,9 @@ const Kasir = ({ onLogout }) => {
                 }`}
                 onClick={() => setPaymentMethod("qris")}
               >
-                QRIS
-              </div>
-            </div>
-
-            <div className="summary-row">
+                📱 QRIS
+              </div>            </div>
+            <div className="summary-row total">
               <span>Total</span>
               <span>{formatCurrency(calculateTotal())}</span>
             </div>
