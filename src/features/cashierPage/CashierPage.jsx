@@ -7,7 +7,7 @@ import { useAuth } from "./hooks/useAuth.js";
 import { useProducts } from "./hooks/useProducts.js";
 import { useCart } from "./hooks/useCart.js";
 import { useCheckout } from "./hooks/useCheckout.js";
-import { filterProducts } from "./utils/cashierUtils.js";
+import { filterAndSortProducts } from "./utils/cashierUtils.js";
 import { calculateCartTotal } from "./utils/formatUtils.js";
 import { CATEGORIES } from "./constants/config.js";
 import "./CashierPage.css";
@@ -24,12 +24,11 @@ const CashierPage = () => {
     lastTransaction,
     processCheckout,
     resetTransaction
-  } = useCheckout();
-
-  const [searchTerm, setSearchTerm] = useState("");
+  } = useCheckout();  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES.ALL);
+  const [sortOrder, setSortOrder] = useState("asc");
 
-  const filteredProducts = filterProducts(products, searchTerm, selectedCategory);
+  const filteredProducts = filterAndSortProducts(products, searchTerm, selectedCategory, "productName", sortOrder);
   const total = calculateCartTotal(cart);
 
   const handleCheckout = () => {
@@ -40,8 +39,7 @@ const CashierPage = () => {
     <div className="kasir-container">
       <Header user={user} />
 
-      <main className="kasir-main">
-        <ProductsSection
+      <main className="kasir-main">        <ProductsSection
           products={products}
           loading={loading}
           error={error}
@@ -49,6 +47,8 @@ const CashierPage = () => {
           setSearchTerm={setSearchTerm}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
           filteredProducts={filteredProducts}
           addToCart={addToCart}
         />

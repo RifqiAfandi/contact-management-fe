@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBox from './SearchBox.jsx';
 import CategoryFilter from './CategoryFilter.jsx';
+import SortControls from './SortControls.jsx';
 import LoadingState from './LoadingState.jsx';
 import ErrorState from './ErrorState.jsx';
 import EmptyState from './EmptyState.jsx';
@@ -13,7 +14,9 @@ const ProductsSection = ({
   searchTerm, 
   setSearchTerm, 
   selectedCategory, 
-  setSelectedCategory, 
+  setSelectedCategory,
+  sortOrder,
+  setSortOrder,
   filteredProducts, 
   addToCart 
 }) => {
@@ -21,13 +24,14 @@ const ProductsSection = ({
     <section className="products-section">
       <div className="section-header">
         <h2 className="section-title">Daftar Produk</h2>
-      </div>
-
-      <div className="controls">
+      </div>      <div className="controls">
         <SearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <CategoryFilter 
           selectedCategory={selectedCategory} 
           setSelectedCategory={setSelectedCategory} 
+        />        <SortControls
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
         />
       </div>
 
