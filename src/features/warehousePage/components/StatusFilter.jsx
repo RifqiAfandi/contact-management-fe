@@ -9,11 +9,16 @@ const StatusFilter = ({ selectedStatus, onStatusChange }) => {
     { value: "Terpakai", label: "Terpakai" },
   ];
 
+  const handleStatusChange = (value) => {
+    console.log(`🔽 Status filter changed from "${selectedStatus}" to "${value}"`);
+    onStatusChange(value);
+  };
+
   return (
     <div className="status-filter">
       <select
         value={selectedStatus}
-        onChange={(e) => onStatusChange(e.target.value)}
+        onChange={(e) => handleStatusChange(e.target.value)}
         className="status-select"
       >
         {statuses.map((status) => (

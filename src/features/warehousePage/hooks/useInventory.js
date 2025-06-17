@@ -13,42 +13,55 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
   const [useMonthlyFilter, setUseMonthlyFilter] = useState(true); // Default to monthly view
 
   const { isLoading, error, setError, get, post, put, del } = useApi();
-  const monthFilter = useMonthFilter();
-  const fetchInventory = async () => {
+  const monthFilter = useMonthFilter();  const fetchInventory = async () => {
     try {
+      console.log("🔄 Fetching inventory data...", {
+        useMonthlyFilter,
+        currentMonth: monthFilter.currentMonth,
+        searchTerm,
+        selectedStatus
+      });
+
       if (useMonthlyFilter) {
         // Fetch data for current month
         const inventoryData = await monthFilter.getInventoryForMonth(
           monthFilter.currentMonth, 
           sortBy, 
           sortOrder, 
-          searchTerm
+          searchTerm,
+          selectedStatus
         );
         console.log("✅ Monthly inventory items loaded:", inventoryData.length);
         setInventoryItems(inventoryData);
         setFilteredItems(inventoryData);
       } else {
         // Fetch all data
-        const inventoryData = await fetchAllInventory();
+        const inventoryData = await fetchAllInventory(searchTerm, selectedStatus, sortBy, sortOrder);
         console.log("✅ All inventory items loaded without pagination:", inventoryData.length);
         setInventoryItems(inventoryData);
         setFilteredItems(inventoryData);
       }
+      
+      // Clear any previous errors
+      setError(null);
     } catch (error) {
       console.error("❌ Error fetching inventory:", error);
-      setError(error.message);
+      setError(error.message || "Failed to fetch inventory data");
+      setInventoryItems([]);
+      setFilteredItems([]);
     }
-  };
-
-  const refreshInventoryList = async () => {
+  };  const refreshInventoryList = async () => {
     try {
+      console.log("🔄 Refreshing inventory list...");
+      
       if (useMonthlyFilter) {
         // Refresh data for current month
         const inventoryData = await monthFilter.getInventoryForMonth(
           monthFilter.currentMonth, 
           sortBy, 
           sortOrder, 
-          searchTerm
+          searchTerm,
+          selectedStatus
         );
         setInventoryItems(inventoryData);
         setFilteredItems(inventoryData);
@@ -58,14 +71,17 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
         await monthFilter.checkAdjacentMonths(monthFilter.currentMonth);
       } else {
         // Refresh all data
-        const inventoryData = await fetchAllInventory();
+        const inventoryData = await fetchAllInventory(searchTerm, selectedStatus, sortBy, sortOrder);
         setInventoryItems(inventoryData);
         setFilteredItems(inventoryData);
         console.log("🔄 Inventory list refreshed without pagination");
       }
+      
+      // Clear any previous errors
+      setError(null);
     } catch (error) {
       console.error("❌ Error refreshing inventory:", error);
-      setError(error.message);
+      setError(error.message || "Failed to refresh inventory data");
     }
   };
 
@@ -163,82 +179,44 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
       alert(`Error: ${error.message}`);
       return false;
     }
-  };const handleSearch = () => {
-    let filtered = inventoryItems.filter((item) => {
-      const matchesSearch = item.itemName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = selectedStatus === "" || item.status === selectedStatus;
-      return matchesSearch && matchesStatus;
+  };  // This function is now mainly for debugging since we use server-side filtering
+  const handleSearch = () => {
+    console.log("🔍 Server-side filtering is now active. Client-side filtering not needed.", {
+      searchTerm,
+      selectedStatus,
+      totalItems: inventoryItems.length,
+      sortBy,
+      sortOrder
     });
 
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
-
-      // Handle null/undefined values - put them at the end
-      if (aValue == null && bValue == null) return 0;
-      if (aValue == null) return 1;
-      if (bValue == null) return -1;      if (sortBy === "itemName" || sortBy === "supplierName") {
-        // Handle string comparison for alphabetical sorting
-        const aString = String(aValue).toLowerCase().trim();
-        const bString = String(bValue).toLowerCase().trim();
-        
-        // Use localeCompare for proper alphabetical sorting including special characters
-        const comparison = aString.localeCompare(bString, 'id', { 
-          sensitivity: 'base',
-          numeric: true,
-          ignorePunctuation: true
-        });
-        
-        return sortOrder === "asc" ? comparison : -comparison;
-      }
-      else if (sortBy === "purchasePrice") {
-        const aNum = parseFloat(aValue) || 0;
-        const bNum = parseFloat(bValue) || 0;
-        
-        if (sortOrder === "asc") {
-          return aNum - bNum;
-        } else {
-          return bNum - aNum;
-        }
-      } 
-      else if (sortBy === "expiredDate" || sortBy === "entryDate" || sortBy === "useDate") {
-        const aDate = new Date(aValue);
-        const bDate = new Date(bValue);
-        
-        // Handle invalid dates - put them at the end
-        if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
-        if (isNaN(aDate.getTime())) return 1;
-        if (isNaN(bDate.getTime())) return -1;
-        
-        if (sortOrder === "asc") {
-          return aDate.getTime() - bDate.getTime();
-        } else {
-          return bDate.getTime() - aDate.getTime();
-        }
-      }
-
-      // Fallback for other data types
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-      }
-    });
-
-    setFilteredItems(filtered);
-  };
-  useEffect(() => {
+    // Since server-side filtering is active, filteredItems should be same as inventoryItems
+    setFilteredItems(inventoryItems);
+    
+    console.log(`📋 Items displayed: ${inventoryItems.length} (server-filtered)`);
+    console.log(`🔍 Active filters - SearchTerm: "${searchTerm}", SelectedStatus: "${selectedStatus}"`);
+  };useEffect(() => {
+    console.log("🔄 Initial inventory fetch on mount");
     fetchInventory();
-  }, [useMonthlyFilter, monthFilter.currentMonth]);
+  }, [useMonthlyFilter, monthFilter.currentMonth]);  useEffect(() => {
+    console.log("🔍 Search/Filter change detected:", {
+      searchTerm,
+      selectedStatus,
+      sortBy,
+      sortOrder,
+      useMonthlyFilter
+    });
+    
+    // Always refetch data from server with current filters
+    // This ensures both monthly and all-data views use server-side filtering
+    console.log("🔄 Refetching data with current filters");
+    fetchInventory();
+  }, [searchTerm, sortBy, sortOrder, selectedStatus]);
+
+  // Separate useEffect for monthly filter toggle
   useEffect(() => {
-    if (useMonthlyFilter) {
-      // For monthly view, refetch data instead of client-side filtering
-      fetchInventory();
-    } else {
-      // For all data view, use client-side filtering
-      handleSearch();
-    }
-  }, [searchTerm, sortBy, sortOrder, selectedStatus, useMonthlyFilter]);
+    console.log("🔄 Monthly filter toggled:", useMonthlyFilter);
+    fetchInventory();
+  }, [useMonthlyFilter]);
 
   const handleMonthChange = async (newMonth) => {
     monthFilter.changeMonth(newMonth);

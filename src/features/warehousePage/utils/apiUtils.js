@@ -37,15 +37,30 @@ export const apiRequest = async (endpoint, options = {}) => {
 };
 
 // New function to fetch all inventory items without pagination
-export const fetchAllInventory = async () => {
+export const fetchAllInventory = async (searchTerm = "", selectedStatus = "", sortBy = "entryDate", sortOrder = "desc") => {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("Authentication token not found");
   }
 
-  console.log("🔄 Fetching all inventory from:", `${BACKEND_URL}/api/inventory/all`);
+  // Build query parameters
+  const params = new URLSearchParams({
+    sortField: sortBy,
+    sortOrder,
+  });
+
+  if (searchTerm) {
+    params.append('itemName', searchTerm);
+  }
+
+  if (selectedStatus) {
+    params.append('status', selectedStatus);
+  }
+
+  const url = `${BACKEND_URL}/api/inventory/all?${params}`;
+  console.log("🔄 Fetching all inventory from:", url);
   
-  const response = await fetch(`${BACKEND_URL}/api/inventory/all`, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -64,14 +79,17 @@ export const fetchAllInventory = async () => {
   }
 
   const result = await response.json();
-  console.log("📦 API Response:", result);
-
-  if (result.isSuccess && result.data) {
+  console.log("📦 API Response:", result);  if (result.isSuccess && Array.isArray(result.data)) {
     console.log("✅ All inventory items loaded without pagination:", result.data.length);
-    console.log("📋 Sample inventory item:", result.data[0]);
+    if (selectedStatus) {
+      console.log(`🔍 Filtered by status "${selectedStatus}":`, result.data.length, "items");
+    }
+    if (result.data.length > 0) {
+      console.log("📋 Sample inventory item:", result.data[0]);
+    }
     return result.data;
   } else {
-    throw new Error("Invalid response format");
+    throw new Error(result.message || "Invalid response format");
   }
 };
 
@@ -102,16 +120,15 @@ export const checkMonthlyData = async (month) => {
 
   const result = await response.json();
   console.log(`📊 Monthly data check result for ${month}:`, result);
-
   if (result.isSuccess) {
     return result.data;
   } else {
-    throw new Error("Invalid response format");
+    throw new Error(result.message || "Invalid response format");
   }
 };
 
 // Function to fetch inventory by month
-export const fetchInventoryByMonth = async (month, sortBy = "entryDate", sortOrder = "desc", searchTerm = "") => {
+export const fetchInventoryByMonth = async (month, sortBy = "entryDate", sortOrder = "desc", searchTerm = "", selectedStatus = "") => {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("Authentication token not found");
@@ -127,6 +144,10 @@ export const fetchInventoryByMonth = async (month, sortBy = "entryDate", sortOrd
 
   if (searchTerm) {
     params.append('itemName', searchTerm);
+  }
+
+  if (selectedStatus) {
+    params.append('status', selectedStatus);
   }
   
   const response = await fetch(`${BACKEND_URL}/api/inventory/by-month?${params}`, {
@@ -144,14 +165,13 @@ export const fetchInventoryByMonth = async (month, sortBy = "entryDate", sortOrd
     }
     throw new Error("Failed to fetch monthly inventory");
   }
-
   const result = await response.json();
   console.log(`📦 Monthly inventory result for ${month}:`, result);
 
   if (result.isSuccess) {
     return result.data;
   } else {
-    throw new Error("Invalid response format");
+    throw new Error(result.message || "Invalid response format");
   }
 };
 

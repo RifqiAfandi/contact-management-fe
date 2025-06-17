@@ -11,12 +11,10 @@ const SortControls = ({
   const getSortLabel = () => {
     if (sortBy === "itemName" || sortBy === "supplierName") {
       return sortOrder === "asc" ? "A-Z" : "Z-A";
-    } else if (sortBy === "entryDate" || sortBy === "expiredDate" || sortBy === "useDate") {
+    } else if (sortBy === "entryDate" || sortBy === "useDate") {
       return sortOrder === "asc" ? "Lama→Baru" : "Baru→Lama";
     } else if (sortBy === "purchasePrice") {
       return sortOrder === "asc" ? "Murah→Mahal" : "Mahal→Murah";
-    } else if (sortBy === "status") {
-      return sortOrder === "asc" ? "↑" : "↓";
     }
     return sortOrder === "asc" ? "↑" : "↓";
   };
@@ -28,12 +26,10 @@ const SortControls = ({
         className="sort-select"
       >
         <option value="entryDate">Tanggal Masuk</option>
-        <option value="expiredDate">Tanggal Expired</option>
         <option value="useDate">Tanggal Terpakai</option>
         <option value="itemName">Nama Barang</option>
         <option value="supplierName">Nama Supplier</option>
         <option value="purchasePrice">Harga Beli</option>
-        <option value="status">Status</option>
       </select>
 
       <button

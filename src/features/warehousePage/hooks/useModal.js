@@ -11,15 +11,23 @@ export const useModal = (refreshInventoryList) => {
     useDate: "",
     imageFile: null,
   });
-
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
+    
     if (name === "imageFile") {
       setFormData((prev) => ({ ...prev, [name]: files[0] }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+      
+      // If useDate is being set and has a value, the item becomes "Terpakai" (Used)
+      // If useDate is being cleared, status should be recalculated based on expiry
+      if (name === "useDate") {
+        console.log("📅 UseDate changed:", value);
+        // The status will be handled by the backend based on useDate value
+        // No need to calculate it here as backend has the logic
+      }
     }
-  };  const handleEdit = (item) => {
+  };const handleEdit = (item) => {
     setEditingItem(item);
     
     // Format dates properly for input fields

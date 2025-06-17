@@ -79,6 +79,21 @@ const Modal = ({
             value={formData.useDate}
             onChange={onInputChange}
           />
+          
+          {/* Status indicator when useDate is filled */}
+          {formData.useDate && (
+            <div style={{
+              padding: '8px 12px',
+              backgroundColor: '#f0f0f0',
+              border: '1px solid #d0d0d0',
+              borderRadius: '4px',
+              fontSize: '14px',
+              color: '#666',
+              marginBottom: '16px'
+            }}>
+              ℹ️ <strong>Status akan berubah menjadi "Terpakai"</strong> karena tanggal terpakai telah diisi
+            </div>
+          )}
 
           <FormField
             id="imageFile"

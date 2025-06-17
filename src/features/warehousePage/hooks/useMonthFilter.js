@@ -47,12 +47,11 @@ export const useMonthFilter = () => {
       setIsLoading(false);
     }
   };
-
   // Get inventory data for specific month
-  const getInventoryForMonth = async (month, sortBy = "entryDate", sortOrder = "desc", searchTerm = "") => {
+  const getInventoryForMonth = async (month, sortBy = "entryDate", sortOrder = "desc", searchTerm = "", selectedStatus = "") => {
     try {
       setIsLoading(true);
-      const data = await fetchInventoryByMonth(month, sortBy, sortOrder, searchTerm);
+      const data = await fetchInventoryByMonth(month, sortBy, sortOrder, searchTerm, selectedStatus);
       return data;
     } catch (error) {
       console.error(`❌ Error fetching inventory for month ${month}:`, error);
