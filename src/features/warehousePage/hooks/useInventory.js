@@ -86,21 +86,40 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
       console.error("❌ Error deleting item:", error);
       alert(error.message);
     }
-  };
-  const handleSubmit = async (e, formData, editingItem) => {
+  };  const handleSubmit = async (e, formData, editingItem) => {
     e.preventDefault();
+
+    // Validate required fields
+    if (!formData.itemName?.trim()) {
+      alert("Nama barang harus diisi");
+      return false;
+    }
+
+    if (!formData.purchasePrice || parseFloat(formData.purchasePrice) <= 0) {
+      alert("Harga beli harus diisi dengan nilai yang valid");
+      return false;
+    }
+
+    if (!formData.entryDate) {
+      alert("Tanggal masuk harus diisi");
+      return false;
+    }
 
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("itemName", formData.itemName);
-      formDataToSend.append("purchasePrice", formData.purchasePrice); 
-      formDataToSend.append("expiredDate", formData.expiredDate);
+      formDataToSend.append("itemName", formData.itemName.trim());
+      formDataToSend.append("purchasePrice", parseFloat(formData.purchasePrice)); 
       formDataToSend.append("entryDate", formData.entryDate);
       
-      // Add new fields
-      if (formData.supplierName) {
-        formDataToSend.append("supplierName", formData.supplierName);
+      // Optional fields - only append if they have values
+      if (formData.expiredDate) {
+        formDataToSend.append("expiredDate", formData.expiredDate);
       }
+      
+      if (formData.supplierName?.trim()) {
+        formDataToSend.append("supplierName", formData.supplierName.trim());
+      }
+      
       if (formData.useDate) {
         formDataToSend.append("useDate", formData.useDate);
       }
@@ -115,6 +134,15 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
       }
 
       console.log(`🚀 ${editingItem ? "Updating" : "Creating"} inventory item...`);
+      console.log("Form data being sent:", {
+        itemName: formData.itemName,
+        purchasePrice: formData.purchasePrice,
+        entryDate: formData.entryDate,
+        expiredDate: formData.expiredDate,
+        supplierName: formData.supplierName,
+        useDate: formData.useDate,
+        hasImage: !!formData.imageFile
+      });
 
       let result;
       if (editingItem) {
@@ -132,10 +160,10 @@ export const useInventory = () => {  const [inventoryItems, setInventoryItems] =
       return false;
     } catch (error) {
       console.error("❌ Error saving item:", error);
-      alert(error.message);
+      alert(`Error: ${error.message}`);
       return false;
     }
-  };  const handleSearch = () => {
+  };const handleSearch = () => {
     let filtered = inventoryItems.filter((item) => {
       const matchesSearch = item.itemName.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = selectedStatus === "" || item.status === selectedStatus;

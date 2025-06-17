@@ -37,7 +37,6 @@ const WarehousePage = () => {
     canGoNext,
     handleMonthChange,
   } = useInventory();
-
   const {
     isModalOpen,
     editingItem,
@@ -46,7 +45,16 @@ const WarehousePage = () => {
     handleCloseModal,
     handleInputChange,
     setIsModalOpen,
-  } = useModal(refreshInventoryList);  return (
+  } = useModal(refreshInventoryList);
+
+  // Create a wrapper function for form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    const success = await handleSubmit(e, formData, editingItem);
+    if (success) {
+      handleCloseModal();
+    }
+  };return (
     <div className="gudang-container">
       <Header user={user} onLogout={handleLogout} />
       
@@ -103,13 +111,12 @@ const WarehousePage = () => {
         onDelete={handleDelete}
         onAddClick={() => setIsModalOpen(true)}
       />
-      
-      {isModalOpen && (
+        {isModalOpen && (
         <Modal
           editingItem={editingItem}
           formData={formData}
           isLoading={isLoading}
-          onSubmit={handleSubmit}
+          onSubmit={handleFormSubmit}
           onClose={handleCloseModal}
           onInputChange={handleInputChange}
         />

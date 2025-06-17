@@ -6,7 +6,7 @@ export const useModal = (refreshInventoryList) => {
     itemName: "",
     purchasePrice: "",
     expiredDate: "",
-    entryDate: "",
+    entryDate: new Date().toISOString().split("T")[0], // Default to today
     supplierName: "",
     useDate: "",
     imageFile: null,
@@ -19,9 +19,10 @@ export const useModal = (refreshInventoryList) => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  };
-  const handleEdit = (item) => {
+  };  const handleEdit = (item) => {
     setEditingItem(item);
+    
+    // Format dates properly for input fields
     const formattedExpiredDate = item.expiredDate
       ? new Date(item.expiredDate).toISOString().split("T")[0]
       : "";
@@ -31,6 +32,13 @@ export const useModal = (refreshInventoryList) => {
     const formattedUseDate = item.useDate
       ? new Date(item.useDate).toISOString().split("T")[0]
       : "";
+
+    console.log("📝 Editing item:", item);
+    console.log("Formatted dates:", {
+      expiredDate: formattedExpiredDate,
+      entryDate: formattedEntryDate,
+      useDate: formattedUseDate
+    });
 
     setFormData({
       itemName: item.itemName || "",
@@ -43,15 +51,14 @@ export const useModal = (refreshInventoryList) => {
       currentImageUrl: item.imageUrl || null,
     });
     setIsModalOpen(true);
-  };
-  const handleCloseModal = () => {
+  };  const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingItem(null);
     setFormData({
       itemName: "",
       purchasePrice: "",
       expiredDate: "",
-      entryDate: "",
+      entryDate: new Date().toISOString().split("T")[0], // Reset to today's date
       supplierName: "",
       useDate: "",
       imageFile: null,
