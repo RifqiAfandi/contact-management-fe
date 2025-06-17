@@ -36,6 +36,45 @@ export const apiRequest = async (endpoint, options = {}) => {
   return response.json();
 };
 
+// New function to fetch all inventory items without pagination
+export const fetchAllInventory = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication token not found");
+  }
+
+  console.log("🔄 Fetching all inventory from:", `${BACKEND_URL}/api/inventory/all`);
+  
+  const response = await fetch(`${BACKEND_URL}/api/inventory/all`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  console.log("📡 Response status:", response.status);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+      return;
+    }
+    throw new Error("Failed to fetch inventory");
+  }
+
+  const result = await response.json();
+  console.log("📦 API Response:", result);
+
+  if (result.isSuccess && result.data) {
+    console.log("✅ All inventory items loaded without pagination:", result.data.length);
+    console.log("📋 Sample inventory item:", result.data[0]);
+    return result.data;
+  } else {
+    throw new Error("Invalid response format");
+  }
+};
+
 export const handleApiError = (error) => {
   console.error("❌ API Error:", error);
   

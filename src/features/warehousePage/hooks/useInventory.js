@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApi } from "./useApi";
+import { fetchAllInventory } from "../utils/apiUtils";
 import { getStoredUser } from "../utils/storageUtils";
 
 export const useInventory = () => {
@@ -13,31 +14,24 @@ export const useInventory = () => {
 
   const fetchInventory = async () => {
     try {
-      const result = await get("/api/inventory");
-      
-      if (result.isSuccess && result.data) {
-        console.log("✅ Inventory items loaded:", result.data.length);
-        setInventoryItems(result.data);
-        setFilteredItems(result.data);
-      } else {
-        throw new Error(result.message || "Invalid response format");
-      }
+      const inventoryData = await fetchAllInventory();
+      console.log("✅ All inventory items loaded without pagination:", inventoryData.length);
+      setInventoryItems(inventoryData);
+      setFilteredItems(inventoryData);
     } catch (error) {
       console.error("❌ Error fetching inventory:", error);
+      setError(error.message);
     }
   };
-
   const refreshInventoryList = async () => {
     try {
-      const result = await get("/api/inventory");
-      
-      if (result.isSuccess) {
-        setInventoryItems(result.data);
-        setFilteredItems(result.data);
-        console.log("🔄 Inventory list refreshed");
-      }
+      const inventoryData = await fetchAllInventory();
+      setInventoryItems(inventoryData);
+      setFilteredItems(inventoryData);
+      console.log("🔄 Inventory list refreshed without pagination");
     } catch (error) {
       console.error("❌ Error refreshing inventory:", error);
+      setError(error.message);
     }
   };
 
