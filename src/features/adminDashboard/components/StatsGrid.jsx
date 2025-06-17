@@ -48,10 +48,8 @@ const StatsGrid = () => {
         axios.get("http://localhost:5000/api/products", {
           params: { page: 1, limit: 1000 }, // Get all products to count properly
           headers,
-        }),
-        // Get all stock data to calculate non-expired and about to expire
-        axios.get("http://localhost:5000/api/inventory", {
-          params: { page: 1, limit: 1000 },
+        }),        // Get all stock data using the no-pagination endpoint
+        axios.get("http://localhost:5000/api/inventory/all", {
           headers,
         }),
       ]);
@@ -78,29 +76,40 @@ const StatsGrid = () => {
       }
 
       let nonExpiredStock = 0;
-      let aboutToExpireStock = 0;
-
-      if (stockResponse.status === 'fulfilled') {
-        const stockItems = stockResponse.value.data.data || [];
+      let aboutToExpireStock = 0;      if (stockResponse.status === 'fulfilled') {
+        const stockData = stockResponse.value.data;
+        const stockItems = stockData.data || [];
         const now = dayjs();
         
+        console.log("✅ Stock data loaded:", stockItems.length, "items");
+        
         stockItems.forEach(item => {
-          if (!item.expiredDate) {
-            // Items without expiry date are considered non-expired
-            nonExpiredStock++;
-          } else {
-            const expiry = dayjs(item.expiredDate);
-            const daysUntilExpiry = expiry.diff(now, "day");
-            
-            if (daysUntilExpiry >= 0 && daysUntilExpiry < 30) {
-              // Items expiring within 30 days
-              aboutToExpireStock++;
-            } else if (daysUntilExpiry >= 30) {
-              // Items not expiring soon
+          // Only count items that are not used (available stock)
+          if (!item.useDate) {
+            if (!item.expiredDate) {
+              // Items without expiry date are considered non-expired
               nonExpiredStock++;
+            } else {
+              const expiry = dayjs(item.expiredDate);
+              const daysUntilExpiry = expiry.diff(now, "day");
+              
+              if (daysUntilExpiry >= 0 && daysUntilExpiry < 30) {
+                // Items expiring within 30 days
+                aboutToExpireStock++;
+              } else if (daysUntilExpiry >= 30) {
+                // Items not expiring soon
+                nonExpiredStock++;
+              }
+              // Items already expired are not counted in either category
             }
-            // Items already expired are not counted in either category
           }
+        });
+        
+        console.log("📊 Stock analysis:", { 
+          totalItems: stockItems.length, 
+          availableItems: stockItems.filter(item => !item.useDate).length,
+          nonExpiredStock, 
+          aboutToExpireStock 
         });
       }
 

@@ -7,49 +7,6 @@ import dayjs from "dayjs";
 const LowStockNotification = () => {
   const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  // Dummy data untuk stok yang hampir habis
-  const dummyLowStockData = [
-    {
-      id: 1,
-      itemName: 'Telur',
-      imageUrl: 'https://example.com/telur.jpg',
-      purchasePrice: 30000,
-      entryDate: '2024-11-15',
-      status: 'Hampir Habis'
-    },
-    {
-      id: 2,
-      itemName: 'Daun Bawang',
-      imageUrl: 'https://example.com/daun-bawang.jpg',
-      purchasePrice: 8000,
-      entryDate: '2024-11-20',
-      status: 'Hampir Habis'
-    },
-    {
-      id: 3,
-      itemName: 'Daun Mint',
-      imageUrl: 'https://example.com/daun-mint.jpg',
-      purchasePrice: 10000,
-      entryDate: '2024-11-25',
-      status: 'Hampir Habis'
-    },
-    {
-      id: 4,
-      itemName: 'Kol',
-      imageUrl: 'https://example.com/kol.jpg',
-      purchasePrice: 10000,
-      entryDate: '2024-12-01',
-      status: 'Hampir Habis'
-    },
-    {
-      id: 5,
-      itemName: 'Leci',
-      imageUrl: 'https://example.com/leci.jpg',
-      purchasePrice: 30000,
-      entryDate: '2024-12-05',
-      status: 'Hampir Habis'
-    }
-  ];
 
   const columns = [
     {
@@ -57,6 +14,17 @@ const LowStockNotification = () => {
       dataIndex: "itemName",
       key: "itemName",
       width: 200,
+    },
+    {
+      title: "Jumlah Stok",
+      dataIndex: "itemCount",
+      key: "itemCount",
+      width: 100,
+      render: (count) => (
+        <Tag color="red" style={{ fontWeight: 'bold' }}>
+          {count} item{count !== 1 ? 's' : ''}
+        </Tag>
+      ),
     },
     {
       title: "Gambar",
@@ -87,7 +55,15 @@ const LowStockNotification = () => {
       key: "entryDate",
       width: 120,
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
-    },    {
+    },
+    {
+      title: "Supplier",
+      dataIndex: "supplierName",
+      key: "supplierName",
+      width: 150,
+      render: (supplier) => supplier || "-",
+    },
+    {
       title: "Status",
       dataIndex: "status",
       key: "status",
@@ -98,25 +74,40 @@ const LowStockNotification = () => {
       },
     },
   ];
+
   const fetchLowStockData = async () => {
     setLoading(true);
     try {
-      // Simulate API loading delay
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Force use dummy data with status field
-      const dataWithStatus = dummyLowStockData.map(item => ({
-        ...item,
-        status: 'Hampir Habis' // Ensure status is always set
-      }));
-      
-      console.log('Loading dummy data:', dataWithStatus);
-      setLowStockItems(dataWithStatus);
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+
+      console.log('🔄 Fetching low stock data from API...');
+      const response = await axios.get("http://localhost:5000/api/inventory/low-stock", {
+        headers,
+      });
+
+      console.log('📦 Low stock API response:', response.data);
+
+      if (response.data.isSuccess) {
+        const lowStockData = response.data.data || [];
+        console.log(`✅ Low stock items loaded: ${lowStockData.length} items`);
+        setLowStockItems(lowStockData);
+      } else {
+        console.warn('⚠️ API returned unsuccessful response:', response.data.message);
+        setLowStockItems([]);
+      }
     } catch (error) {
-      console.error("Error fetching low stock data:", error);
-      message.error("Gagal memuat data stok yang hampir habis");
-      // Fallback to dummy data even on error
-      setLowStockItems(dummyLowStockData);
+      console.error("❌ Error fetching low stock data:", error);
+      if (error.response?.status === 401) {
+        message.error("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      } else {
+        message.error("Gagal memuat data stok yang hampir habis");
+      }
+      setLowStockItems([]);
     }
     setLoading(false);
   };
