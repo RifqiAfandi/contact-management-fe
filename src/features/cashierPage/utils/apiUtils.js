@@ -7,9 +7,9 @@ export const fetchProducts = async () => {
     throw new Error("Authentication token not found");
   }
 
-  console.log("🔄 Fetching products from:", `${BACKEND_URL}/api/products`);
+  console.log("🔄 Fetching all products from:", `${BACKEND_URL}/api/products/all`);
   
-  const response = await fetch(`${BACKEND_URL}/api/products`, {
+  const response = await fetch(`${BACKEND_URL}/api/products/all`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -29,9 +29,9 @@ export const fetchProducts = async () => {
   console.log("📦 API Response:", result);
 
   if (result.isSuccess && result.data) {
-    console.log("✅ Products loaded:", result.data.length);
+    console.log("✅ All products loaded without pagination:", result.data.length);
     console.log("📋 Sample product:", result.data[0]);
-
+    
     const mappedProducts = result.data.map((product) => ({
       ...product,
       price: product.sellingPrice,
