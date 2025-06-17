@@ -2,6 +2,7 @@ import React from "react";
 import Header from "./components/Header";
 import StatsGrid from "./components/StatsGrid";
 import SearchBox from "./components/SearchBox";
+import StatusFilter from "./components/StatusFilter";
 import SortControls from "./components/SortControls";
 import MonthFilter from "./components/MonthFilter";
 import InventoryList from "./components/InventoryList";
@@ -12,8 +13,7 @@ import { useAuth } from "./hooks/useAuth";
 import "./WarehousePage.css";
 
 const WarehousePage = () => {
-  const { user, handleLogout } = useAuth();
-  const {
+  const { user, handleLogout } = useAuth();  const {
     inventoryItems,
     filteredItems,
     isLoading,
@@ -21,9 +21,11 @@ const WarehousePage = () => {
     searchTerm,
     sortBy,
     sortOrder,
+    selectedStatus,
     setSearchTerm,
     setSortBy,
     setSortOrder,
+    setSelectedStatus,
     handleDelete,
     handleSubmit,
     refreshInventoryList,
@@ -49,13 +51,18 @@ const WarehousePage = () => {
       <Header user={user} onLogout={handleLogout} />
       
       <StatsGrid inventoryItems={inventoryItems} />
-      
-      <div className="controls-section">
+        <div className="controls-section">
         <SearchBox 
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
-          {/* Month Filter placed next to search */}
+        
+        <StatusFilter
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
+        />
+        
+        {/* Month Filter placed next to search */}
         {useMonthlyFilter && (
           <MonthFilter
             currentMonth={currentMonth}

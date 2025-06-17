@@ -4,12 +4,12 @@ import { fetchAllInventory } from "../utils/apiUtils";
 import { getStoredUser } from "../utils/storageUtils";
 import { useMonthFilter } from "./useMonthFilter";
 
-export const useInventory = () => {
-  const [inventoryItems, setInventoryItems] = useState([]);
+export const useInventory = () => {  const [inventoryItems, setInventoryItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("entryDate");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [useMonthlyFilter, setUseMonthlyFilter] = useState(true); // Default to monthly view
 
   const { isLoading, error, setError, get, post, put, del } = useApi();
@@ -87,7 +87,6 @@ export const useInventory = () => {
       alert(error.message);
     }
   };
-
   const handleSubmit = async (e, formData, editingItem) => {
     e.preventDefault();
 
@@ -97,6 +96,14 @@ export const useInventory = () => {
       formDataToSend.append("purchasePrice", formData.purchasePrice); 
       formDataToSend.append("expiredDate", formData.expiredDate);
       formDataToSend.append("entryDate", formData.entryDate);
+      
+      // Add new fields
+      if (formData.supplierName) {
+        formDataToSend.append("supplierName", formData.supplierName);
+      }
+      if (formData.useDate) {
+        formDataToSend.append("useDate", formData.useDate);
+      }
 
       const userData = getStoredUser();
       if (userData) {
@@ -129,9 +136,11 @@ export const useInventory = () => {
       return false;
     }
   };  const handleSearch = () => {
-    let filtered = inventoryItems.filter((item) =>
-      item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = inventoryItems.filter((item) => {
+      const matchesSearch = item.itemName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = selectedStatus === "" || item.status === selectedStatus;
+      return matchesSearch && matchesStatus;
+    });
 
     filtered.sort((a, b) => {
       let aValue = a[sortBy];
@@ -140,9 +149,7 @@ export const useInventory = () => {
       // Handle null/undefined values - put them at the end
       if (aValue == null && bValue == null) return 0;
       if (aValue == null) return 1;
-      if (bValue == null) return -1;
-
-      if (sortBy === "itemName") {
+      if (bValue == null) return -1;      if (sortBy === "itemName" || sortBy === "supplierName") {
         // Handle string comparison for alphabetical sorting
         const aString = String(aValue).toLowerCase().trim();
         const bString = String(bValue).toLowerCase().trim();
@@ -155,7 +162,7 @@ export const useInventory = () => {
         });
         
         return sortOrder === "asc" ? comparison : -comparison;
-      } 
+      }
       else if (sortBy === "purchasePrice") {
         const aNum = parseFloat(aValue) || 0;
         const bNum = parseFloat(bValue) || 0;
@@ -166,7 +173,7 @@ export const useInventory = () => {
           return bNum - aNum;
         }
       } 
-      else if (sortBy === "expiredDate" || sortBy === "entryDate") {
+      else if (sortBy === "expiredDate" || sortBy === "entryDate" || sortBy === "useDate") {
         const aDate = new Date(aValue);
         const bDate = new Date(bValue);
         
@@ -195,7 +202,6 @@ export const useInventory = () => {
   useEffect(() => {
     fetchInventory();
   }, [useMonthlyFilter, monthFilter.currentMonth]);
-
   useEffect(() => {
     if (useMonthlyFilter) {
       // For monthly view, refetch data instead of client-side filtering
@@ -204,7 +210,7 @@ export const useInventory = () => {
       // For all data view, use client-side filtering
       handleSearch();
     }
-  }, [searchTerm, sortBy, sortOrder, useMonthlyFilter]);
+  }, [searchTerm, sortBy, sortOrder, selectedStatus, useMonthlyFilter]);
 
   const handleMonthChange = async (newMonth) => {
     monthFilter.changeMonth(newMonth);
@@ -214,7 +220,6 @@ export const useInventory = () => {
   const toggleMonthlyFilter = () => {
     setUseMonthlyFilter(!useMonthlyFilter);
   };
-
   return {
     inventoryItems,
     filteredItems,
@@ -223,9 +228,11 @@ export const useInventory = () => {
     searchTerm,
     sortBy,
     sortOrder,
+    selectedStatus,
     setSearchTerm,
     setSortBy,
     setSortOrder,
+    setSelectedStatus,
     handleDelete,
     handleSubmit,
     refreshInventoryList,

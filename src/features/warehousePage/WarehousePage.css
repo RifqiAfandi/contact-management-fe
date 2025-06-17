@@ -186,6 +186,14 @@
   background-color: rgba(245, 158, 11, 0.1);
   color: var(--warning-color);
 }
+.icon-red {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+.icon-gray {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
 
 /* Controls Section */
 .controls-section {
@@ -251,6 +259,28 @@
 }
 
 .sort-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Status Filter Styles */
+.status-filter {
+  display: flex;
+  align-items: center;
+}
+
+.status-select {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  min-width: 150px;
+}
+
+.status-select:focus {
   outline: none;
   border-color: var(--primary-color);
 }
@@ -377,6 +407,11 @@
   color: white;
 }
 
+.expiry-badge.used {
+  background: rgba(107, 114, 128, 0.9);
+  color: white;
+}
+
 .item-content {
   flex: 1;
   padding: var(--space-lg);
@@ -426,6 +461,41 @@
   font-size: 0.875rem;
   color: var(--neutral-900);
   font-weight: 600;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.status-normal {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #059669;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-expired {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-used {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+  border: 1px solid rgba(107, 114, 128, 0.2);
 }
 
 .item-actions {

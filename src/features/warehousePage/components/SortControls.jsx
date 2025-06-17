@@ -7,30 +7,33 @@ const SortControls = ({
   onSortByChange, 
   onSortOrderChange, 
   onAddClick 
-}) => {
-  // Function to get appropriate sort label based on current sortBy field
+}) => {  // Function to get appropriate sort label based on current sortBy field
   const getSortLabel = () => {
-    if (sortBy === "itemName") {
+    if (sortBy === "itemName" || sortBy === "supplierName") {
       return sortOrder === "asc" ? "A-Z" : "Z-A";
-    } else if (sortBy === "entryDate" || sortBy === "expiredDate") {
+    } else if (sortBy === "entryDate" || sortBy === "expiredDate" || sortBy === "useDate") {
       return sortOrder === "asc" ? "Lama→Baru" : "Baru→Lama";
     } else if (sortBy === "purchasePrice") {
       return sortOrder === "asc" ? "Murah→Mahal" : "Mahal→Murah";
+    } else if (sortBy === "status") {
+      return sortOrder === "asc" ? "↑" : "↓";
     }
     return sortOrder === "asc" ? "↑" : "↓";
   };
 
   return (
-    <div className="sort-controls">
-      <select
+    <div className="sort-controls">      <select
         value={sortBy}
         onChange={(e) => onSortByChange(e.target.value)}
         className="sort-select"
       >
         <option value="entryDate">Tanggal Masuk</option>
         <option value="expiredDate">Tanggal Expired</option>
+        <option value="useDate">Tanggal Terpakai</option>
         <option value="itemName">Nama Barang</option>
+        <option value="supplierName">Nama Supplier</option>
         <option value="purchasePrice">Harga Beli</option>
+        <option value="status">Status</option>
       </select>
 
       <button

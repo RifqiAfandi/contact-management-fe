@@ -1,6 +1,5 @@
 import React from "react";
 import StatCard from "./StatCard";
-import { getExpiryStatus } from "../utils/inventoryUtils";
 import { formatCurrency } from "../utils/formatUtils";
 
 const StatsGrid = ({ inventoryItems }) => {
@@ -12,17 +11,35 @@ const StatsGrid = ({ inventoryItems }) => {
       iconColor: "icon-blue",
     },
     {
-      title: "Akan Expired",
-      value: inventoryItems.filter(
-        (item) => getExpiryStatus(item.expiredDate) === "warning"
-      ).length,
+      title: "Barang Baik",
+      value: inventoryItems.filter(item => item.status === "Baik").length,
+      icon: "check",
+      iconColor: "icon-green",
+    },
+    {
+      title: "Segera Expired",
+      value: inventoryItems.filter(item => item.status === "Segera Expired").length,
       icon: "calendar",
       iconColor: "icon-orange",
     },
     {
+      title: "Expired",
+      value: inventoryItems.filter(item => item.status === "Expired").length,
+      icon: "alert",
+      iconColor: "icon-red",
+    },
+    {
+      title: "Terpakai",
+      value: inventoryItems.filter(item => item.status === "Terpakai").length,
+      icon: "archive",
+      iconColor: "icon-gray",
+    },
+    {
       title: "Total Nilai",
       value: formatCurrency(
-        inventoryItems.reduce((sum, item) => sum + item.purchasePrice, 0)
+        inventoryItems
+          .filter(item => item.status !== "Terpakai") // Exclude used items from total value
+          .reduce((sum, item) => sum + item.purchasePrice, 0)
       ),
       icon: "money",
       iconColor: "icon-green",

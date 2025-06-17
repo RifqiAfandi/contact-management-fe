@@ -23,14 +23,21 @@ const Modal = ({
 
         <CurrentImage imageUrl={formData.currentImageUrl} />
 
-        <form onSubmit={onSubmit} className="modal-form">
-          <FormField
+        <form onSubmit={onSubmit} className="modal-form">          <FormField
             id="itemName"
             name="itemName"
             label="Nama Barang"
             value={formData.itemName}
             onChange={onInputChange}
             required
+          />
+
+          <FormField
+            id="supplierName"
+            name="supplierName"
+            label="Nama Supplier"
+            value={formData.supplierName}
+            onChange={onInputChange}
           />
 
           <FormField
@@ -61,9 +68,17 @@ const Modal = ({
               label="Tanggal Expired"
               value={formData.expiredDate}
               onChange={onInputChange}
-              required
             />
           </FormRow>
+
+          <FormField
+            id="useDate"
+            name="useDate"
+            type="date"
+            label="Tanggal Terpakai"
+            value={formData.useDate}
+            onChange={onInputChange}
+          />
 
           <FormField
             id="imageFile"

@@ -2,12 +2,13 @@ import { useState } from "react";
 
 export const useModal = (refreshInventoryList) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({
+  const [editingItem, setEditingItem] = useState(null);  const [formData, setFormData] = useState({
     itemName: "",
     purchasePrice: "",
     expiredDate: "",
     entryDate: "",
+    supplierName: "",
+    useDate: "",
     imageFile: null,
   });
 
@@ -19,7 +20,6 @@ export const useModal = (refreshInventoryList) => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
   const handleEdit = (item) => {
     setEditingItem(item);
     const formattedExpiredDate = item.expiredDate
@@ -28,18 +28,22 @@ export const useModal = (refreshInventoryList) => {
     const formattedEntryDate = item.entryDate
       ? new Date(item.entryDate).toISOString().split("T")[0]
       : "";
+    const formattedUseDate = item.useDate
+      ? new Date(item.useDate).toISOString().split("T")[0]
+      : "";
 
     setFormData({
       itemName: item.itemName || "",
       purchasePrice: item.purchasePrice ? item.purchasePrice.toString() : "",
       expiredDate: formattedExpiredDate,
       entryDate: formattedEntryDate,
+      supplierName: item.supplierName || "",
+      useDate: formattedUseDate,
       imageFile: null,
       currentImageUrl: item.imageUrl || null,
     });
     setIsModalOpen(true);
   };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingItem(null);
@@ -48,6 +52,8 @@ export const useModal = (refreshInventoryList) => {
       purchasePrice: "",
       expiredDate: "",
       entryDate: "",
+      supplierName: "",
+      useDate: "",
       imageFile: null,
     });
   };

@@ -5,7 +5,7 @@ const ItemImage = ({ item }) => {
   return (
     <div className="item-image">
       <img src={item.imageUrl} alt={item.itemName} />
-      <ExpiryBadge expiredDate={item.expiredDate} />
+      <ExpiryBadge status={item.status} />
     </div>
   );
 };
