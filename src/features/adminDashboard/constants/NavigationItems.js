@@ -4,11 +4,16 @@ export const navigationItems = [
     label: "Home",
     icon: "home",
     type: "simple",
-  },
-  {
+  },  {
     id: "Laporan",
     label: "Laporan",
     icon: "report",
+    type: "simple",
+  },
+  {
+    id: "LaporanStok",
+    label: "Laporan Stok",
+    icon: "stock",
     type: "simple",
   },
   {

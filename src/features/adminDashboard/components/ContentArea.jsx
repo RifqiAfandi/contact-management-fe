@@ -7,6 +7,7 @@ import ProductTable from "./ProductTable";
 import UserTable from "./UserTable";
 import CreateUserForm from "./CreateUserForm";
 import FinancialReport from "./FinancialReport";
+import LaporanStok from "./LaporanStok";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
@@ -25,6 +26,14 @@ const ContentArea = ({ activeTab }) => {
           <div>
             <h2 style={{ marginBottom: '24px' }}>📊 Laporan Keuangan</h2>
             <FinancialReport />
+          </div>
+        );
+
+      case "LaporanStok":
+        return (
+          <div>
+            <h2 style={{ marginBottom: '24px' }}>📦 Laporan Stok</h2>
+            <LaporanStok />
           </div>
         );
 
