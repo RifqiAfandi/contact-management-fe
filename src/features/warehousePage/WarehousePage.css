@@ -200,6 +200,7 @@
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--neutral-200);
   flex-shrink: 0; /* Prevent controls from shrinking */
+  flex-wrap: wrap;
 }
 
 .search-box {
@@ -267,11 +268,21 @@
   font-size: 0.875rem;
   font-weight: 500;
   transition: all var(--transition-fast);
+  min-width: 90px;
+  justify-content: center;
+  position: relative;
 }
 
 .sort-order-btn:hover {
   background: var(--neutral-200);
   border-color: var(--neutral-400);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sort-order-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .add-button {
@@ -704,6 +715,176 @@
   align-items: center;
   justify-content: center;
   font-size: inherit;
+}
+
+/* Month Filter Styles */
+.month-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--neutral-200);
+  margin-bottom: var(--space-md);
+}
+
+.month-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--neutral-300);
+  background: var(--neutral-50);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--neutral-700);
+}
+
+.month-nav-btn:hover:not(.disabled) {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.month-nav-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--neutral-100);
+  border-color: var(--neutral-200);
+  color: var(--neutral-400);
+}
+
+.current-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 180px;
+}
+
+.month-label {
+  font-size: 0.75rem;
+  color: var(--neutral-600);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.month-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.filter-toggle-btn {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--neutral-300);
+  background: var(--neutral-50);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--neutral-700);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filter-toggle-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.filter-toggle-btn:hover:not(.active) {
+  background: var(--neutral-200);
+  border-color: var(--neutral-400);
+}
+
+/* Right controls container */
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Updated sort controls for right side placement */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Month filter in controls section - compact version */
+.controls-section .month-filter {
+  background: var(--neutral-50);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-300);
+  margin: 0;
+  gap: var(--space-sm);
+}
+
+.controls-section .month-filter .current-month {
+  min-width: 140px;
+}
+
+.controls-section .month-filter .month-label {
+  font-size: 0.7rem;
+}
+
+.controls-section .month-filter .month-value {
+  font-size: 0.875rem;
+}
+
+.controls-section .month-filter .month-nav-btn {
+  width: 32px;
+  height: 32px;
+}
+
+/* Responsive Month Filter */
+@media (max-width: 768px) {
+  .controls-section {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .right-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .controls-section .month-filter {
+    order: 2;
+    width: 100%;
+  }
+
+  .controls-section .month-filter .current-month {
+    min-width: auto;
+    flex: 1;
+  }
+
+  .month-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .filter-toggle {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Responsive Design */

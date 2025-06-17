@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import StatsGrid from "./components/StatsGrid";
 import SearchBox from "./components/SearchBox";
 import SortControls from "./components/SortControls";
+import MonthFilter from "./components/MonthFilter";
 import InventoryList from "./components/InventoryList";
 import Modal from "./components/Modal";
 import { useInventory } from "./hooks/useInventory";
@@ -26,6 +27,13 @@ const WarehousePage = () => {
     handleDelete,
     handleSubmit,
     refreshInventoryList,
+    // Month filter props
+    useMonthlyFilter,
+    toggleMonthlyFilter,
+    currentMonth,
+    canGoPrevious,
+    canGoNext,
+    handleMonthChange,
   } = useInventory();
 
   const {
@@ -36,9 +44,7 @@ const WarehousePage = () => {
     handleCloseModal,
     handleInputChange,
     setIsModalOpen,
-  } = useModal(refreshInventoryList);
-
-  return (
+  } = useModal(refreshInventoryList);  return (
     <div className="gudang-container">
       <Header user={user} onLogout={handleLogout} />
       
@@ -49,14 +55,37 @@ const WarehousePage = () => {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
+          {/* Month Filter placed next to search */}
+        {useMonthlyFilter && (
+          <MonthFilter
+            currentMonth={currentMonth}
+            onMonthChange={handleMonthChange}
+            canGoPrevious={canGoPrevious}
+            canGoNext={canGoNext}
+            isLoading={isLoading}
+            compact={true}
+          />
+        )}
         
-        <SortControls
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onSortByChange={setSortBy}
-          onSortOrderChange={setSortOrder}
-          onAddClick={() => setIsModalOpen(true)}
-        />
+        <div className="right-controls">
+          <SortControls
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortByChange={setSortBy}
+            onSortOrderChange={setSortOrder}
+            onAddClick={() => setIsModalOpen(true)}
+          />
+          
+          <div className="filter-toggle">
+            <button
+              className={`filter-toggle-btn ${useMonthlyFilter ? 'active' : ''}`}
+              onClick={toggleMonthlyFilter}
+              title={useMonthlyFilter ? 'Beralih ke tampilan semua data' : 'Beralih ke filter bulanan'}
+            >
+              {useMonthlyFilter ? '📅 Bulanan' : '📋 Semua'}
+            </button>
+          </div>
+        </div>
       </div>
       
       <InventoryList

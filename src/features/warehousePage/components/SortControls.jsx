@@ -8,6 +8,18 @@ const SortControls = ({
   onSortOrderChange, 
   onAddClick 
 }) => {
+  // Function to get appropriate sort label based on current sortBy field
+  const getSortLabel = () => {
+    if (sortBy === "itemName") {
+      return sortOrder === "asc" ? "A-Z" : "Z-A";
+    } else if (sortBy === "entryDate" || sortBy === "expiredDate") {
+      return sortOrder === "asc" ? "Lama→Baru" : "Baru→Lama";
+    } else if (sortBy === "purchasePrice") {
+      return sortOrder === "asc" ? "Murah→Mahal" : "Mahal→Murah";
+    }
+    return sortOrder === "asc" ? "↑" : "↓";
+  };
+
   return (
     <div className="sort-controls">
       <select
@@ -24,9 +36,10 @@ const SortControls = ({
       <button
         onClick={() => onSortOrderChange(sortOrder === "asc" ? "desc" : "asc")}
         className="sort-order-btn"
+        title={`Klik untuk mengubah urutan sorting`}
       >
         {renderIcon("sort")}
-        {sortOrder === "asc" ? "A-Z" : "Z-A"}
+        {getSortLabel()}
       </button>
 
       <button className="add-button" onClick={onAddClick}>

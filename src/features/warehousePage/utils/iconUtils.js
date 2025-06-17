@@ -11,6 +11,8 @@ export const getIconSymbol = (iconName) => {
     money: "💰",
     package: "📦",
     refresh: "🔄",
+    "chevron-left": "◀",
+    "chevron-right": "▶",
   };
   return icons[iconName] || "•";
 };

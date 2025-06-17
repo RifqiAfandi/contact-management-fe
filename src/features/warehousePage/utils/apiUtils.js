@@ -75,6 +75,86 @@ export const fetchAllInventory = async () => {
   }
 };
 
+// Function to check if data exists for a specific month
+export const checkMonthlyData = async (month) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication token not found");
+  }
+
+  console.log(`🔍 Checking data for month: ${month}`);
+  
+  const response = await fetch(`${BACKEND_URL}/api/inventory/check-month?month=${month}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+      return;
+    }
+    throw new Error("Failed to check monthly data");
+  }
+
+  const result = await response.json();
+  console.log(`📊 Monthly data check result for ${month}:`, result);
+
+  if (result.isSuccess) {
+    return result.data;
+  } else {
+    throw new Error("Invalid response format");
+  }
+};
+
+// Function to fetch inventory by month
+export const fetchInventoryByMonth = async (month, sortBy = "entryDate", sortOrder = "desc", searchTerm = "") => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication token not found");
+  }
+
+  console.log(`🔄 Fetching inventory for month: ${month}`);
+  
+  const params = new URLSearchParams({
+    month,
+    sortField: sortBy,
+    sortOrder,
+  });
+
+  if (searchTerm) {
+    params.append('itemName', searchTerm);
+  }
+  
+  const response = await fetch(`${BACKEND_URL}/api/inventory/by-month?${params}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+      return;
+    }
+    throw new Error("Failed to fetch monthly inventory");
+  }
+
+  const result = await response.json();
+  console.log(`📦 Monthly inventory result for ${month}:`, result);
+
+  if (result.isSuccess) {
+    return result.data;
+  } else {
+    throw new Error("Invalid response format");
+  }
+};
+
 export const handleApiError = (error) => {
   console.error("❌ API Error:", error);
   
