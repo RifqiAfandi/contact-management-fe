@@ -31,7 +31,6 @@ const StatsGrid = () => {
       iconColor: "icon-purple",
     },
   ]);
-
   const fetchStatsData = async () => {
     try {
       const headers = {
@@ -40,31 +39,43 @@ const StatsGrid = () => {
 
       // Fetch all data in parallel
       const [usersResponse, productsResponse, stockResponse] = await Promise.allSettled([
-        // Get total users
+        // Get all users to filter out admin
         axios.get("http://localhost:5000/api/auth/users", {
-          params: { page: 1, limit: 1 },
+          params: { page: 1, limit: 1000 }, // Get all users to count properly
           headers,
         }),
-        // Get total products
+        // Get all products to count them
         axios.get("http://localhost:5000/api/products", {
-          params: { page: 1, limit: 1 },
+          params: { page: 1, limit: 1000 }, // Get all products to count properly
           headers,
         }),
         // Get all stock data to calculate non-expired and about to expire
         axios.get("http://localhost:5000/api/inventory", {
-          params: { page: 1, limit: 1000 }, // Get all items to count properly
+          params: { page: 1, limit: 1000 },
           headers,
         }),
       ]);
 
-      // Extract data with error handling
-      const totalUsers = usersResponse.status === 'fulfilled' 
-        ? usersResponse.value.data.total || 0
-        : 0;
+      // Extract and count users (excluding admin)
+      let totalUsers = 0;
+      if (usersResponse.status === 'fulfilled') {
+        const userData = usersResponse.value.data;
+        const users = userData.data || [];
+        // Count users excluding admin role
+        totalUsers = users.filter(user => user.role !== 'admin').length;
+        console.log("Users data:", users);
+        console.log("Non-admin users count:", totalUsers);
+      }
 
-      const totalProducts = productsResponse.status === 'fulfilled'
-        ? productsResponse.value.data.total || 0
-        : 0;
+      // Extract and count all products
+      let totalProducts = 0;
+      if (productsResponse.status === 'fulfilled') {
+        const productData = productsResponse.value.data;
+        const products = productData.data || [];
+        totalProducts = products.length;
+        console.log("Products data:", products);
+        console.log("Total products count:", totalProducts);
+      }
 
       let nonExpiredStock = 0;
       let aboutToExpireStock = 0;
@@ -89,9 +100,11 @@ const StatsGrid = () => {
               nonExpiredStock++;
             }
             // Items already expired are not counted in either category
-          };
+          }
         });
       }
+
+      console.log("Final stats:", { totalUsers, totalProducts, nonExpiredStock, aboutToExpireStock });
 
       // Update stats data
       setStatsData([
