@@ -27,24 +27,16 @@ export const navigationItems = [
     id: "Users",
     label: "Users",
     icon: "users",
-    type: "dropdown",
-    submenu: [
-      {
-        id: "CreateUser",
-        label: "Create User",
-        icon: "userPlus",
-      },
+    type: "dropdown",    submenu: [
       {
         id: "UserList",
         label: "User List",
         icon: "users",
       },
-    ],
-  },
-  {
-    id: "Settings",
-    label: "Settings",
-    icon: "settings",
-    type: "simple",
+      {
+        id: "CreateUser",
+        label: "Create User",
+        icon: "userPlus",
+      },    ],
   },
 ];

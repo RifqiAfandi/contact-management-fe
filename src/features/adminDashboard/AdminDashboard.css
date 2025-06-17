@@ -171,6 +171,11 @@
   max-height: 200px;
 }
 
+/* Hide submenu when sidebar is hidden */
+.admin-sidebar.hidden .submenu {
+  display: none;
+}
+
 .submenu-button {
   width: 100%;
   background: none;

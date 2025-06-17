@@ -1,25 +1,25 @@
 export const statsData = [
   {
     title: "Total Users",
-    value: "1,234",
+    value: "0",
     icon: "users",
     iconColor: "icon-blue",
   },
   {
     title: "Total Produk",
-    value: "567",
+    value: "0",
     icon: "product",
     iconColor: "icon-green",
   },
   {
-    title: "Stok Tersedia",
-    value: "12,890",
+    title: "Stok Tidak Expired",
+    value: "0",
     icon: "stock",
     iconColor: "icon-orange",
   },
   {
-    title: "Laporan Hari Ini",
-    value: "45",
+    title: "Stok Akan Expired",
+    value: "0",
     icon: "report",
     iconColor: "icon-purple",
   },
