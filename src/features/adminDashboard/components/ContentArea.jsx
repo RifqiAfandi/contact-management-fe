@@ -8,20 +8,21 @@ import UserTable from "./UserTable";
 import CreateUserForm from "./CreateUserForm";
 import FinancialReport from "./FinancialReport";
 import LaporanStok from "./LaporanStok";
+import LowStockNotification from "./LowStockNotification";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
-    switch (activeTab) {
-      case "Home":
+    switch (activeTab) {      case "Home":
         return (
           <div>
-            <StatsGrid />
             <WelcomeCard
               title="Selamat Datang di Admin Dashboard"
               text="Kelola sistem Anda dengan mudah melalui dashboard ini. Gunakan menu di sebelah kiri untuk navigasi ke berbagai fitur yang tersedia."
             />
+            <StatsGrid />
+            <LowStockNotification />
           </div>
-        );      case "Laporan":
+        );case "Laporan":
         return (
           <div>
             <h2 style={{ marginBottom: '24px' }}>📊 Laporan Keuangan</h2>
