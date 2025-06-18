@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Card, Row, Col, Statistic, Table, Tag, Select, message, Spin } from 'antd';
-import { ShopOutlined, AlertOutlined, CalendarOutlined } from '@ant-design/icons';
+import { DatePicker, Card, Row, Col, Statistic, Table, Tag, Select, message, Spin, Button } from 'antd';
+import { ShopOutlined, AlertOutlined, CalendarOutlined, ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
@@ -9,57 +9,11 @@ const { Option } = Select;
 
 const LaporanStok = () => {
   const [loading, setLoading] = useState(false);
+  const [loadingUsed, setLoadingUsed] = useState(false);
   const [stokTersedia, setStokTersedia] = useState([]);
+  const [stokTerpakai, setStokTerpakai] = useState([]);
   const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'days'), dayjs()]);
-  const [filterPeriod, setFilterPeriod] = useState('7days');  // Dummy data untuk stok terpakai
-  const stokTerpakai = [
-    {
-      id: 1,
-      itemName: 'Laptop Asus ROG',
-      imageUrl: 'https://example.com/laptop.jpg',
-      purchasePrice: 15000000,
-      entryDate: '2024-12-01',
-      dateUsed: '2024-12-15',
-      status: 'Terjual'
-    },
-    {
-      id: 2,
-      itemName: 'Mouse Wireless',
-      imageUrl: 'https://example.com/mouse.jpg',
-      purchasePrice: 250000,
-      entryDate: '2024-12-02',
-      dateUsed: '2024-12-14',
-      status: 'Terjual'
-    },
-    {
-      id: 3,
-      itemName: 'Keyboard Mechanical',
-      imageUrl: 'https://example.com/keyboard.jpg',
-      purchasePrice: 800000,
-      entryDate: '2024-12-03',
-      dateUsed: '2024-12-13',
-      status: 'Rusak'
-    },
-    {
-      id: 4,
-      itemName: 'Monitor LG 24"',
-      imageUrl: 'https://example.com/monitor.jpg',
-      purchasePrice: 3500000,
-      entryDate: '2024-12-04',
-      dateUsed: '2024-12-12',
-      status: 'Terjual'
-    },
-    {
-      id: 5,
-      itemName: 'Webcam HD',
-      imageUrl: 'https://example.com/webcam.jpg',
-      purchasePrice: 500000,
-      entryDate: '2024-12-05',
-      dateUsed: '2024-12-11',
-      status: 'Expired'
-    }
-  ];
-
+  const [filterPeriod, setFilterPeriod] = useState('7days');
   const fetchStokTersedia = async () => {
     setLoading(true);
     try {
@@ -67,31 +21,62 @@ const LaporanStok = () => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       };
 
-      const response = await axios.get("http://localhost:5000/api/inventory", {
-        params: { page: 1, limit: 1000 },
+      // Fetch all available stock (status != 'Terpakai')
+      const response = await axios.get("http://localhost:5000/api/inventory/all", {
         headers,
       });
 
-      const stockItems = response.data.data || [];
+      const allItems = response.data.data || [];
       
-      // Filter berdasarkan range tanggal
-      const filteredItems = stockItems.filter(item => {
+      // Filter stock that is NOT used and within date range
+      const availableStock = allItems.filter(item => {
         const entryDate = dayjs(item.entryDate);
-        return entryDate.isAfter(dateRange[0]) && entryDate.isBefore(dateRange[1].add(1, 'day'));
+        const isInDateRange = entryDate.isAfter(dateRange[0]) && entryDate.isBefore(dateRange[1].add(1, 'day'));
+        const isNotUsed = item.status !== 'Terpakai';
+        return isInDateRange && isNotUsed;
       });
 
-      setStokTersedia(filteredItems);
+      setStokTersedia(availableStock);
     } catch (error) {
-      console.error("Error fetching stock data:", error);
-      message.error("Gagal memuat data stok");
+      console.error("Error fetching available stock data:", error);
+      message.error("Gagal memuat data stok tersedia");
     }
     setLoading(false);
   };
 
+  const fetchStokTerpakai = async () => {
+    setLoadingUsed(true);
+    try {
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+
+      // Fetch all used stock (status = 'Terpakai')
+      const response = await axios.get("http://localhost:5000/api/inventory/all", {
+        headers,
+      });
+
+      const allItems = response.data.data || [];
+      
+      // Filter stock that is used and within date range (based on useDate)
+      const usedStock = allItems.filter(item => {
+        if (item.status !== 'Terpakai' || !item.useDate) return false;
+        
+        const useDate = dayjs(item.useDate);
+        return useDate.isAfter(dateRange[0]) && useDate.isBefore(dateRange[1].add(1, 'day'));
+      });
+
+      setStokTerpakai(usedStock);
+    } catch (error) {
+      console.error("Error fetching used stock data:", error);
+      message.error("Gagal memuat data stok terpakai");
+    }
+    setLoadingUsed(false);
+  };
   useEffect(() => {
     fetchStokTersedia();
+    fetchStokTerpakai();
   }, [dateRange]);
-
   const handlePeriodChange = (value) => {
     setFilterPeriod(value);
     const today = dayjs();
@@ -122,6 +107,11 @@ const LaporanStok = () => {
       setDateRange(dates);
       setFilterPeriod('custom');
     }
+  };
+
+  const refreshData = () => {
+    fetchStokTersedia();
+    fetchStokTerpakai();
   };
 
   // Kolom untuk tabel stok tersedia
@@ -226,52 +216,30 @@ const LaporanStok = () => {
       key: 'entryDate',
       width: 120,
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
-    },
-    {
+    },    {
       title: 'Tanggal Terpakai',
-      dataIndex: 'dateUsed',
-      key: 'dateUsed',
+      dataIndex: 'useDate',
+      key: 'useDate',
       width: 130,
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
-    },
-    {
+      render: (date) => date ? dayjs(date).format("DD/MM/YYYY") : "-",
+    },    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       width: 120,
       render: (status) => {
-        let color = 'default';
-        switch (status) {
-          case 'Terjual':
-            color = 'green';
-            break;
-          case 'Rusak':
-            color = 'red';
-            break;
-          case 'Expired':
-            color = 'orange';
-            break;
-          default:
-            color = 'blue';
-        }
-        return <Tag color={color}>{status}</Tag>;
+        // Since we're filtering for 'Terpakai' status, all should be 'Terpakai'
+        return <Tag color="blue">Terpakai</Tag>;
       },
-    },
-  ];
-  // Filter stok terpakai berdasarkan range tanggal
-  const filteredStokTerpakai = stokTerpakai.filter(item => {
-    const usedDate = dayjs(item.dateUsed);
-    return usedDate.isAfter(dateRange[0]) && usedDate.isBefore(dateRange[1].add(1, 'day'));
-  });
+    },  ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card style={{ marginBottom: '24px' }}>
+    <div style={{ padding: '24px' }}>      <Card style={{ marginBottom: '24px' }}>
         <Row gutter={16} align="middle">
-          <Col span={6}>
+          <Col span={5}>
             <h2 style={{ margin: 0 }}>📊 Laporan Stok</h2>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Select
               value={filterPeriod}
               onChange={handlePeriodChange}
@@ -285,7 +253,7 @@ const LaporanStok = () => {
               <Option value="custom">Custom Range</Option>
             </Select>
           </Col>
-          <Col span={12}>
+          <Col span={10}>
             <RangePicker
               value={dateRange}
               onChange={handleDateRangeChange}
@@ -293,6 +261,17 @@ const LaporanStok = () => {
               style={{ width: '100%' }}
               placeholder={['Tanggal Mulai', 'Tanggal Akhir']}
             />
+          </Col>
+          <Col span={4}>
+            <Button 
+              type="primary" 
+              icon={<ReloadOutlined />} 
+              onClick={refreshData}
+              loading={loading || loadingUsed}
+              style={{ width: '100%' }}
+            >
+              Refresh
+            </Button>
           </Col>
         </Row>
       </Card>
@@ -312,7 +291,7 @@ const LaporanStok = () => {
           <Card>
             <Statistic
               title="Stok Terpakai"
-              value={filteredStokTerpakai.length}
+              value={stokTerpakai.length}
               prefix={<AlertOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />
@@ -371,21 +350,23 @@ const LaporanStok = () => {
       </Card>      {/* Tabel Stok Terpakai */}
       <Card 
         title="🔵 Stok Yang Sudah Terpakai" 
-        extra={<Tag color="blue">{filteredStokTerpakai.length} Items</Tag>}
+        extra={<Tag color="blue">{stokTerpakai.length} Items</Tag>}
       >
-        <Table
-          columns={columnsStokTerpakai}
-          dataSource={filteredStokTerpakai}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} dari ${total} items`,
-          }}
-          scroll={{ x: 800 }}
-        />
+        <Spin spinning={loadingUsed}>
+          <Table
+            columns={columnsStokTerpakai}
+            dataSource={stokTerpakai}
+            rowKey="id"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} dari ${total} items`,
+            }}
+            scroll={{ x: 800 }}
+          />
+        </Spin>
       </Card>
 
       {/* Informasi Summary */}
@@ -399,11 +380,10 @@ const LaporanStok = () => {
                 <strong>{dateRange[0].format('DD/MM/YYYY')} - {dateRange[1].format('DD/MM/YYYY')}</strong>
               </p>
             </div>
-          </Col>          <Col span={12}>
-            <div style={{ padding: '16px', backgroundColor: '#e6f4ff', borderRadius: '6px' }}>
+          </Col>          <Col span={12}>            <div style={{ padding: '16px', backgroundColor: '#e6f4ff', borderRadius: '6px' }}>
               <h4 style={{ color: '#1890ff', marginBottom: '8px' }}>🔵 Stok Terpakai</h4>
               <p style={{ margin: 0 }}>
-                Terdapat <strong>{filteredStokTerpakai.length} produk</strong> yang telah terpakai dalam periode {' '}
+                Terdapat <strong>{stokTerpakai.length} produk</strong> yang telah terpakai dalam periode {' '}
                 <strong>{dateRange[0].format('DD/MM/YYYY')} - {dateRange[1].format('DD/MM/YYYY')}</strong>
               </p>
             </div>
