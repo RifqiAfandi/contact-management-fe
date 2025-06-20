@@ -9,13 +9,17 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
-
   // Parse user data to check role
   try {
     const userData = JSON.parse(user);
     
     // Check if user role is allowed (if specific roles are required)
     if (allowedRoles.length > 0 && !allowedRoles.includes(userData.role)) {
+      return <Navigate to="/login" replace />;
+    }
+    
+    // If no specific roles required but user doesn't have a valid role, redirect to login
+    if (allowedRoles.length === 0 && !['admin', 'kasir', 'gudang'].includes(userData.role)) {
       return <Navigate to="/login" replace />;
     }
     

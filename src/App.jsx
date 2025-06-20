@@ -105,40 +105,7 @@ function AppContent() {
                 </ProtectedRoute>
               </AnimatedRoute>
             }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <AnimatedRoute>
-                <ProtectedRoute>
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'center', 
-                      alignItems: 'center', 
-                      height: '100vh' 
-                    }}
-                  >
-                    <Box
-                      component={motion.div}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.5 }}
-                      sx={{ 
-                        p: 4, 
-                        bgcolor: 'background.paper', 
-                        borderRadius: 2, 
-                        boxShadow: 3 
-                      }}
-                    >
-                      User Dashboard Coming Soon
-                    </Box>
-                  </Box>
-                </ProtectedRoute>
-              </AnimatedRoute>
-            }
-          />
-          <Route
+          />          <Route
             path="/gudang"
             element={
               <AnimatedRoute>
