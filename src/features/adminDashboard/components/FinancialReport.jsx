@@ -88,7 +88,6 @@ const FinancialReport = () => {
       });      // Log any failed requests
       [expensesResponse, revenueResponse, nextDataResponse, prevDataResponse].forEach((response, index) => {
         if (response.status === 'rejected') {
-          console.warn(`Request ${index} failed:`, response.reason);
           // Handle authorization errors
           if (response.reason?.response?.status === 401) {
             message.error("Session expired. Please login again.");
@@ -99,10 +98,7 @@ const FinancialReport = () => {
             message.error("Access denied. Admin privileges required.");
           }
         }
-      });
-
-    } catch (error) {
-      console.error("Error fetching report data:", error);
+      });    } catch (error) {
       message.error("Gagal memuat data laporan");
       setReportData({
         expenses: 0,
@@ -112,7 +108,7 @@ const FinancialReport = () => {
         hasNextData: false,
         hasPrevData: false
       });
-    } finally {
+    }finally {
       setLoading(false);
     }
   };

@@ -34,11 +34,8 @@ const LaporanStok = () => {
         const isInDateRange = entryDate.isAfter(dateRange[0]) && entryDate.isBefore(dateRange[1].add(1, 'day'));
         const isNotUsed = item.status !== 'Terpakai';
         return isInDateRange && isNotUsed;
-      });
-
-      setStokTersedia(availableStock);
+      });      setStokTersedia(availableStock);
     } catch (error) {
-      console.error("Error fetching available stock data:", error);
       message.error("Gagal memuat data stok tersedia");
     }
     setLoading(false);
@@ -64,11 +61,8 @@ const LaporanStok = () => {
         
         const useDate = dayjs(item.useDate);
         return useDate.isAfter(dateRange[0]) && useDate.isBefore(dateRange[1].add(1, 'day'));
-      });
-
-      setStokTerpakai(usedStock);
+      });      setStokTerpakai(usedStock);
     } catch (error) {
-      console.error("Error fetching used stock data:", error);
       message.error("Gagal memuat data stok terpakai");
     }
     setLoadingUsed(false);

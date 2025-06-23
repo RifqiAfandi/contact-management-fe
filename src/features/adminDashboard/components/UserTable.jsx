@@ -106,12 +106,10 @@ const UserTable = () => {
         ...pagination,
         current: params.current || pagination.current,
         pageSize: params.pageSize || pagination.pageSize,
-        total:
-          response.data.total ||
+        total:          response.data.total ||
           (response.data.data ? response.data.data.length : 0),
       });
     } catch (error) {
-      console.error("Error fetching user data:", error);
       message.error("Gagal memuat data pengguna");
     }
     setLoading(false);
@@ -174,11 +172,9 @@ const UserTable = () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
             }
-          );
-          message.success("Pengguna berhasil dihapus");
+          );          message.success("Pengguna berhasil dihapus");
           fetchData();
         } catch (error) {
-          console.error("Error deleting user:", error);
           message.error("Gagal menghapus pengguna");
         }
       },
@@ -206,12 +202,10 @@ const UserTable = () => {
             "Content-Type": "application/json",
           },
         }
-      );
-      message.success("Data pengguna berhasil diperbarui");
+      );      message.success("Data pengguna berhasil diperbarui");
       setEditModalVisible(false);
       fetchData();
     } catch (error) {
-      console.error("Error updating user:", error);
       message.error("Gagal memperbarui data pengguna");
     }
   };

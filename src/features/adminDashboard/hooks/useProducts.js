@@ -17,9 +17,7 @@ export const useProducts = () => {
     minPrice: null,
     maxPrice: null,
   });
-
   const fetchProducts = async (params = {}) => {
-    console.log("🔄 Fetching products...", { params, filters, pagination });
     setLoading(true);
     setError(null);
 
@@ -37,11 +35,7 @@ export const useProducts = () => {
         requestParams.append("productName", filters.productName);
       if (filters.category) requestParams.append("category", filters.category);
       if (filters.minPrice) requestParams.append("minPrice", filters.minPrice);
-      if (filters.maxPrice) requestParams.append("maxPrice", filters.maxPrice);
-
-      const response = await apiRequest(`/api/products?${requestParams}`);
-
-      console.log("✅ Products fetched successfully:", response);
+      if (filters.maxPrice) requestParams.append("maxPrice", filters.maxPrice);      const response = await apiRequest(`/api/products?${requestParams}`);
 
       if (response.isSuccess || response.data) {
         const newData = response.data || [];
@@ -54,9 +48,7 @@ export const useProducts = () => {
         };
 
         setPagination(newPagination);
-      }
-    } catch (error) {
-      console.error("❌ Error fetching products:", error);
+      }    } catch (error) {
       setError(error.message);
 
       if (
@@ -78,32 +70,23 @@ export const useProducts = () => {
       setLoading(false);
     }
   };
-
   const handleDelete = async (productId, productName) => {
     try {
-      console.log("🗑️ Deleting product:", { productId, productName });
 
       const response = await apiRequest(`/api/products/${productId}`, {
         method: "DELETE",
-      });
-
-      if (response.isSuccess) {
-        console.log("✅ Product deleted successfully");
+      });      if (response.isSuccess) {
         message.success("Produk berhasil dihapus");
 
         // Refresh the product list
         await refreshProducts();
         return true;
-      }
-    } catch (error) {
-      console.error("❌ Error deleting product:", error);
+      }    } catch (error) {
       message.error(error.message || "Gagal menghapus produk");
       return false;
     }
   };
-
   const refreshProducts = async () => {
-    console.log("🔄 Refreshing products list...");
     await fetchProducts({
       current: pagination.current,
       pageSize: pagination.pageSize,
@@ -133,46 +116,32 @@ export const useProducts = () => {
     setFilters(searchFilters);
     fetchProducts({ current: 1, pageSize: pagination.pageSize });
   };
-
   const handleCreate = async (formData) => {
     try {
-      console.log("➕ Creating product:", formData);
 
       const response = await apiRequest("/api/products", {
         method: "POST",
         body: formData,
-      });
-
-      if (response.isSuccess) {
-        console.log("✅ Product created successfully");
+      });      if (response.isSuccess) {
         message.success("Produk berhasil ditambahkan");
         await refreshProducts();
         return true;
-      }
-    } catch (error) {
-      console.error("❌ Error creating product:", error);
+      }    } catch (error) {
       message.error(error.message || "Gagal menambahkan produk");
       return false;
     }
   };
-
   const handleUpdate = async (productId, formData) => {
     try {
-      console.log("✏️ Updating product:", { productId, formData });
 
       const response = await apiRequest(`/api/products/${productId}`, {
         method: "PUT",
         body: formData,
-      });
-
-      if (response.isSuccess) {
-        console.log("✅ Product updated successfully");
+      });      if (response.isSuccess) {
         message.success("Produk berhasil diperbarui");
         await refreshProducts();
         return true;
-      }
-    } catch (error) {
-      console.error("❌ Error updating product:", error);
+      }    } catch (error) {
       message.error(error.message || "Gagal memperbarui produk");
       return false;
     }

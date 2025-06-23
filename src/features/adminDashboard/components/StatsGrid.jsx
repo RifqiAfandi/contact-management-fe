@@ -56,32 +56,23 @@ const StatsGrid = () => {
 
       // Extract and count users (excluding admin)
       let totalUsers = 0;
-      if (usersResponse.status === 'fulfilled') {
-        const userData = usersResponse.value.data;
+      if (usersResponse.status === 'fulfilled') {        const userData = usersResponse.value.data;
         const users = userData.data || [];
         // Count users excluding admin role
         totalUsers = users.filter(user => user.role !== 'admin').length;
-        console.log("Users data:", users);
-        console.log("Non-admin users count:", totalUsers);
       }
 
       // Extract and count all products
-      let totalProducts = 0;
-      if (productsResponse.status === 'fulfilled') {
+      let totalProducts = 0;      if (productsResponse.status === 'fulfilled') {
         const productData = productsResponse.value.data;
         const products = productData.data || [];
         totalProducts = products.length;
-        console.log("Products data:", products);
-        console.log("Total products count:", totalProducts);
       }
 
       let nonExpiredStock = 0;
       let aboutToExpireStock = 0;      if (stockResponse.status === 'fulfilled') {
-        const stockData = stockResponse.value.data;
-        const stockItems = stockData.data || [];
+        const stockData = stockResponse.value.data;        const stockItems = stockData.data || [];
         const now = dayjs();
-        
-        console.log("✅ Stock data loaded:", stockItems.length, "items");
         
         stockItems.forEach(item => {
           // Only count items that are not used (available stock)
@@ -102,18 +93,8 @@ const StatsGrid = () => {
               }
               // Items already expired are not counted in either category
             }
-          }
-        });
-        
-        console.log("📊 Stock analysis:", { 
-          totalItems: stockItems.length, 
-          availableItems: stockItems.filter(item => !item.useDate).length,
-          nonExpiredStock, 
-          aboutToExpireStock 
-        });
+          }        });
       }
-
-      console.log("Final stats:", { totalUsers, totalProducts, nonExpiredStock, aboutToExpireStock });
 
       // Update stats data
       setStatsData([
@@ -141,12 +122,9 @@ const StatsGrid = () => {
           icon: "report",
           iconColor: "icon-purple",
         },
-      ]);
-
-      // Log any failed requests
+      ]);      // Log any failed requests
       [usersResponse, productsResponse, stockResponse].forEach((response, index) => {
         if (response.status === 'rejected') {
-          console.warn(`Stats request ${index} failed:`, response.reason);
           if (response.reason?.response?.status === 401) {
             message.error("Session expired. Please login again.");
             localStorage.removeItem("token");
@@ -157,7 +135,6 @@ const StatsGrid = () => {
       });
 
     } catch (error) {
-      console.error("Error fetching stats data:", error);
       message.error("Gagal memuat data statistik");
     }
   };

@@ -106,14 +106,12 @@ const StockTable = () => {
       });
       // Gunakan response.data.data dan response.data.pagination.totalItems
       setData(response.data.data || []);
-      setPagination({
-        ...pagination,
+      setPagination({        ...pagination,
         current: params.current || pagination.current,
         pageSize: params.pageSize || pagination.pageSize,
         total: response.data.pagination?.totalItems || 0,
       });
     } catch (error) {
-      console.error("Error fetching stock data:", error);
       message.error("Gagal memuat data stok");
     }
     setLoading(false);

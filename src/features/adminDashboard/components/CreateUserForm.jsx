@@ -41,12 +41,10 @@ const CreateUserForm = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           // Jangan set Content-Type, biarkan browser yang mengatur
         },
-      });
-      message.success("User berhasil dibuat");
+      });      message.success("User berhasil dibuat");
       form.resetFields();
       setImageUrl("");
     } catch (error) {
-      console.error("Error creating user:", error);
       message.error("Gagal membuat user");
     }
     setLoading(false);

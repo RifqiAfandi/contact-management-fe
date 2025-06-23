@@ -81,34 +81,25 @@ const LowStockNotification = () => {
     setLoading(true);
     try {
       const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
+        Authorization: `Bearer ${localStorage.getItem("token")}`,      };
 
-      console.log('🔄 Fetching low stock data from API...');
       const response = await axios.get("http://localhost:5000/api/inventory/low-stock", {
         headers,
       });
 
-      console.log('📦 Low stock API response:', response.data);      if (response.data.isSuccess) {
+      if (response.data.isSuccess) {
         const lowStockData = response.data.data || [];
         const logicUsed = response.data.logic || "standard";
         const explanationText = response.data.explanation || "";
-        
-        console.log(`✅ Low stock items loaded: ${lowStockData.length} items`);
-        console.log(`🔧 Logic used: ${logicUsed}`);
-        console.log(`📝 Explanation: ${explanationText}`);
         
         setLowStockItems(lowStockData);
         setLogicType(logicUsed);
         setExplanation(explanationText);
       } else {
-        console.warn('⚠️ API returned unsuccessful response:', response.data.message);
-        setLowStockItems([]);
-        setLogicType("standard");
+        setLowStockItems([]);        setLogicType("standard");
         setExplanation("");
       }
     } catch (error) {
-      console.error("❌ Error fetching low stock data:", error);
       if (error.response?.status === 401) {
         message.error("Session expired. Please login again.");
         localStorage.removeItem("token");
@@ -116,7 +107,7 @@ const LowStockNotification = () => {
         window.location.href = "/login";
       } else {
         message.error("Gagal memuat data stok yang hampir habis");
-      }        setLowStockItems([]);
+      }setLowStockItems([]);
         setLogicType("standard");
         setExplanation("");
       }
@@ -172,10 +163,8 @@ const LowStockNotification = () => {
             </div>
           )}
         </div>
-        
-        {lowStockItems.length > 0 ? (
+          {lowStockItems.length > 0 ? (
           <>
-            {console.log('Rendering table with data:', lowStockItems)}
             <Table
               columns={columns}
               dataSource={lowStockItems}
