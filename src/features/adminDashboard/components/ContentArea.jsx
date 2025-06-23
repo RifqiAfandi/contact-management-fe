@@ -12,7 +12,8 @@ import LowStockNotification from "./LowStockNotification";
 
 const ContentArea = ({ activeTab }) => {
   const renderContent = () => {
-    switch (activeTab) {      case "Home":
+    switch (activeTab) {
+      case "Home":
         return (
           <div>
             <WelcomeCard
@@ -22,10 +23,11 @@ const ContentArea = ({ activeTab }) => {
             <StatsGrid />
             <LowStockNotification />
           </div>
-        );case "Laporan":
+        );
+      case "Laporan":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>📊 Laporan Keuangan</h2>
+            <h2 style={{ marginBottom: "24px" }}>📊 Laporan Keuangan</h2>
             <FinancialReport />
           </div>
         );
@@ -33,7 +35,7 @@ const ContentArea = ({ activeTab }) => {
       case "LaporanStok":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>📦 Laporan Stok</h2>
+            <h2 style={{ marginBottom: "24px" }}>📦 Laporan Stok</h2>
             <LaporanStok />
           </div>
         );
@@ -41,7 +43,7 @@ const ContentArea = ({ activeTab }) => {
       case "Stok":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>📦 Manajemen Stok</h2>
+            <h2 style={{ marginBottom: "24px" }}>📦 Manajemen Stok</h2>
             <StockTable />
           </div>
         );
@@ -49,13 +51,14 @@ const ContentArea = ({ activeTab }) => {
       case "Produk":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>📋 Manajemen Produk</h2>
+            <h2 style={{ marginBottom: "24px" }}>📋 Manajemen Produk</h2>
             <ProductTable />
           </div>
-        );      case "CreateUser":
+        );
+      case "CreateUser":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>👤 Buat User Baru</h2>
+            <h2 style={{ marginBottom: "24px" }}>👤 Buat User Baru</h2>
             <CreateUserForm />
           </div>
         );
@@ -63,15 +66,13 @@ const ContentArea = ({ activeTab }) => {
       case "UserList":
         return (
           <div>
-            <h2 style={{ marginBottom: '24px' }}>👥 Daftar Pengguna</h2>
+            <h2 style={{ marginBottom: "24px" }}>👥 Daftar Pengguna</h2>
             <UserTable />
           </div>
         );
 
       default:
-        return (
-          <WelcomeCard text={`Content for ${activeTab} tab.`} />
-        );
+        return <WelcomeCard text={`Content for ${activeTab} tab.`} />;
     }
   };
 
