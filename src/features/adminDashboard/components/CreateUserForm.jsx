@@ -41,7 +41,8 @@ const CreateUserForm = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           // Jangan set Content-Type, biarkan browser yang mengatur
         },
-      });      message.success("User berhasil dibuat");
+      });
+      message.success("User berhasil dibuat");
       form.resetFields();
       setImageUrl("");
     } catch (error) {
@@ -70,15 +71,8 @@ const CreateUserForm = () => {
   };
 
   return (
-    <Card
-      title="Buat User Baru"
-      style={{ maxWidth: 600, margin: "0 auto" }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-      >
+    <Card title="Buat User Baru" style={{ maxWidth: 600, margin: "0 auto" }}>
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           name="name"
           label="Nama"
@@ -87,11 +81,7 @@ const CreateUserForm = () => {
           <Input placeholder="Masukkan nama lengkap" />
         </Form.Item>
 
-        <Form.Item
-          name="profilImage"
-          label="Foto Profil"
-          valuePropName="file"
-        >
+        <Form.Item name="profilImage" label="Foto Profil" valuePropName="file">
           <Upload {...uploadProps}>
             <Button icon={<UploadOutlined />}>Pilih Foto</Button>
           </Upload>
@@ -126,10 +116,7 @@ const CreateUserForm = () => {
         >
           <Select placeholder="Pilih role">
             {ROLES.map((role) => (
-              <Option
-                key={role.value}
-                value={role.value}
-              >
+              <Option key={role.value} value={role.value}>
                 {role.label}
               </Option>
             ))}
@@ -138,11 +125,7 @@ const CreateUserForm = () => {
 
         <Form.Item>
           <Space>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-            >
+            <Button type="primary" htmlType="submit" loading={loading}>
               Buat User
             </Button>
             <Button

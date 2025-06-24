@@ -35,7 +35,8 @@ export const useProducts = () => {
         requestParams.append("productName", filters.productName);
       if (filters.category) requestParams.append("category", filters.category);
       if (filters.minPrice) requestParams.append("minPrice", filters.minPrice);
-      if (filters.maxPrice) requestParams.append("maxPrice", filters.maxPrice);      const response = await apiRequest(`/api/products?${requestParams}`);
+      if (filters.maxPrice) requestParams.append("maxPrice", filters.maxPrice);
+      const response = await apiRequest(`/api/products?${requestParams}`);
 
       if (response.isSuccess || response.data) {
         const newData = response.data || [];
@@ -48,7 +49,8 @@ export const useProducts = () => {
         };
 
         setPagination(newPagination);
-      }    } catch (error) {
+      }
+    } catch (error) {
       setError(error.message);
 
       if (
@@ -72,16 +74,17 @@ export const useProducts = () => {
   };
   const handleDelete = async (productId, productName) => {
     try {
-
       const response = await apiRequest(`/api/products/${productId}`, {
         method: "DELETE",
-      });      if (response.isSuccess) {
+      });
+      if (response.isSuccess) {
         message.success("Produk berhasil dihapus");
 
         // Refresh the product list
         await refreshProducts();
         return true;
-      }    } catch (error) {
+      }
+    } catch (error) {
       message.error(error.message || "Gagal menghapus produk");
       return false;
     }
@@ -118,30 +121,32 @@ export const useProducts = () => {
   };
   const handleCreate = async (formData) => {
     try {
-
       const response = await apiRequest("/api/products", {
         method: "POST",
         body: formData,
-      });      if (response.isSuccess) {
+      });
+      if (response.isSuccess) {
         message.success("Produk berhasil ditambahkan");
         await refreshProducts();
         return true;
-      }    } catch (error) {
+      }
+    } catch (error) {
       message.error(error.message || "Gagal menambahkan produk");
       return false;
     }
   };
   const handleUpdate = async (productId, formData) => {
     try {
-
       const response = await apiRequest(`/api/products/${productId}`, {
         method: "PUT",
         body: formData,
-      });      if (response.isSuccess) {
+      });
+      if (response.isSuccess) {
         message.success("Produk berhasil diperbarui");
         await refreshProducts();
         return true;
-      }    } catch (error) {
+      }
+    } catch (error) {
       message.error(error.message || "Gagal memperbarui produk");
       return false;
     }

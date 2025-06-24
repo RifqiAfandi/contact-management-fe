@@ -129,7 +129,8 @@ const ProductTable = () => {
       if (success) {
         setCreateModalVisible(false);
         createForm.resetFields();
-      }    } catch (error) {
+      }
+    } catch (error) {
       message.error("Gagal membuat produk");
     }
   };
@@ -169,7 +170,8 @@ const ProductTable = () => {
       if (success) {
         setEditModalVisible(false);
         form.resetFields();
-      }    } catch (error) {
+      }
+    } catch (error) {
       message.error("Gagal memperbarui produk");
     }
   };
@@ -268,7 +270,8 @@ const ProductTable = () => {
         return false;
       }
       return false; // Prevent auto upload
-    },    onChange: (info) => {
+    },
+    onChange: (info) => {
       if (info.file && info.file.status !== "removed") {
         // File selected successfully
       }

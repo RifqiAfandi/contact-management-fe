@@ -106,7 +106,8 @@ const StockTable = () => {
       });
       // Gunakan response.data.data dan response.data.pagination.totalItems
       setData(response.data.data || []);
-      setPagination({        ...pagination,
+      setPagination({
+        ...pagination,
         current: params.current || pagination.current,
         pageSize: params.pageSize || pagination.pageSize,
         total: response.data.pagination?.totalItems || 0,
@@ -152,10 +153,7 @@ const StockTable = () => {
 
   return (
     <Card>
-      <Space
-        direction="vertical"
-        style={{ width: "100%", marginBottom: 16 }}
-      >
+      <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
         <Space wrap>
           <Input
             placeholder="Cari nama produk"

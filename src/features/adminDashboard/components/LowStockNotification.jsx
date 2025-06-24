@@ -23,8 +23,8 @@ const LowStockNotification = () => {
       key: "itemCount",
       width: 100,
       render: (count) => (
-        <Tag color="red" style={{ fontWeight: 'bold' }}>
-          {count} item{count !== 1 ? 's' : ''}
+        <Tag color="red" style={{ fontWeight: "bold" }}>
+          {count} item{count !== 1 ? "s" : ""}
         </Tag>
       ),
     },
@@ -38,7 +38,12 @@ const LowStockNotification = () => {
           <img
             src={imageUrl}
             alt="Product"
-            style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px" }}
+            style={{
+              width: "40px",
+              height: "40px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
           />
         ) : (
           <span style={{ fontSize: "12px", color: "#999" }}>No image</span>
@@ -71,7 +76,7 @@ const LowStockNotification = () => {
       key: "status",
       width: 130,
       render: (status, record) => {
-        const statusText = status || 'Hampir Habis';
+        const statusText = status || "Hampir Habis";
         return <Tag color="orange">{statusText}</Tag>;
       },
     },
@@ -81,22 +86,27 @@ const LowStockNotification = () => {
     setLoading(true);
     try {
       const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,      };
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
 
-      const response = await axios.get("http://localhost:5000/api/inventory/low-stock", {
-        headers,
-      });
+      const response = await axios.get(
+        "http://localhost:5000/api/inventory/low-stock",
+        {
+          headers,
+        }
+      );
 
       if (response.data.isSuccess) {
         const lowStockData = response.data.data || [];
         const logicUsed = response.data.logic || "standard";
         const explanationText = response.data.explanation || "";
-        
+
         setLowStockItems(lowStockData);
         setLogicType(logicUsed);
         setExplanation(explanationText);
       } else {
-        setLowStockItems([]);        setLogicType("standard");
+        setLowStockItems([]);
+        setLogicType("standard");
         setExplanation("");
       }
     } catch (error) {
@@ -107,10 +117,11 @@ const LowStockNotification = () => {
         window.location.href = "/login";
       } else {
         message.error("Gagal memuat data stok yang hampir habis");
-      }setLowStockItems([]);
-        setLogicType("standard");
-        setExplanation("");
       }
+      setLowStockItems([]);
+      setLogicType("standard");
+      setExplanation("");
+    }
     setLoading(false);
   };
 
@@ -118,52 +129,61 @@ const LowStockNotification = () => {
     fetchLowStockData();
   }, []);
   return (
-    <Card 
+    <Card
       title={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <AlertOutlined style={{ color: "#fa8c16" }} />
           <span>
-            {logicType === "no_duplicates" 
-              ? "🚨 Semua Item Ditampilkan (Tidak Ada Duplikat)" 
-              : "⚠️ Notifikasi Stok yang Hampir Habis"
-            }
+            {logicType === "no_duplicates"
+              ? "🚨 Semua Item Ditampilkan (Tidak Ada Duplikat)"
+              : "⚠️ Notifikasi Stok yang Hampir Habis"}
           </span>
           <Tag color={logicType === "no_duplicates" ? "red" : "orange"}>
-            {logicType === "no_duplicates" ? "Mode: Semua Item" : "Mode: < 3 Item"}
+            {logicType === "no_duplicates"
+              ? "Mode: Semua Item"
+              : "Mode: < 3 Item"}
           </Tag>
         </div>
       }
       style={{ marginTop: "24px" }}
       extra={
         <Tag color={logicType === "no_duplicates" ? "red" : "orange"}>
-          {lowStockItems.length} Item{lowStockItems.length !== 1 ? 's' : ''}
+          {lowStockItems.length} Item{lowStockItems.length !== 1 ? "s" : ""}
         </Tag>
       }
-    >      <Spin spinning={loading}>
+    >
+      {" "}
+      <Spin spinning={loading}>
         {/* Logic Explanation */}
-        <div style={{ 
-          marginBottom: "16px", 
-          padding: "12px", 
-          backgroundColor: logicType === "no_duplicates" ? "#fff2f0" : "#fff7e6", 
-          borderRadius: "6px",
-          border: `1px solid ${logicType === "no_duplicates" ? "#ffccc7" : "#ffd591"}`,
-          fontSize: "13px",
-          color: logicType === "no_duplicates" ? "#a8071a" : "#d46b08"
-        }}>
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "12px",
+            backgroundColor:
+              logicType === "no_duplicates" ? "#fff2f0" : "#fff7e6",
+            borderRadius: "6px",
+            border: `1px solid ${
+              logicType === "no_duplicates" ? "#ffccc7" : "#ffd591"
+            }`,
+            fontSize: "13px",
+            color: logicType === "no_duplicates" ? "#a8071a" : "#d46b08",
+          }}
+        >
           <strong>
-            {logicType === "no_duplicates" ? "🚨 Mode Khusus Aktif:" : "📌 Mode Standar:"}
+            {logicType === "no_duplicates"
+              ? "🚨 Mode Khusus Aktif:"
+              : "📌 Mode Standar:"}
           </strong>{" "}
-          {logicType === "no_duplicates" 
-            ? "Tidak ada item duplikat ditemukan dalam database. SEMUA item ditampilkan dalam notifikasi karena setiap item hanya ada 1." 
-            : "Item dengan jumlah kurang dari 3 ditampilkan dalam notifikasi. Item dengan 3+ tidak ditampilkan."
-          }
+          {logicType === "no_duplicates"
+            ? "Tidak ada item duplikat ditemukan dalam database. SEMUA item ditampilkan dalam notifikasi karena setiap item hanya ada 1."
+            : "Item dengan jumlah kurang dari 3 ditampilkan dalam notifikasi. Item dengan 3+ tidak ditampilkan."}
           {explanation && (
             <div style={{ marginTop: "6px", fontStyle: "italic" }}>
               📝 {explanation}
             </div>
           )}
         </div>
-          {lowStockItems.length > 0 ? (
+        {lowStockItems.length > 0 ? (
           <>
             <Table
               columns={columns}
@@ -173,24 +193,38 @@ const LowStockNotification = () => {
               size="small"
               scroll={{ x: 600 }}
             />
-          </>        ) : (
-          <div style={{ 
-            textAlign: "center", 
-            padding: "20px", 
-            color: "#666",
-            backgroundColor: "#f6ffed",
-            borderRadius: "6px",
-            border: "1px solid #b7eb8f"
-          }}>
-            <AlertOutlined style={{ fontSize: "24px", color: "#52c41a", marginBottom: "8px" }} />
-            <p style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "500" }}>
+          </>
+        ) : (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "20px",
+              color: "#666",
+              backgroundColor: "#f6ffed",
+              borderRadius: "6px",
+              border: "1px solid #b7eb8f",
+            }}
+          >
+            <AlertOutlined
+              style={{
+                fontSize: "24px",
+                color: "#52c41a",
+                marginBottom: "8px",
+              }}
+            />
+            <p
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: "16px",
+                fontWeight: "500",
+              }}
+            >
               ✅ Tidak Ada Item yang Perlu Diperhatikan
             </p>
             <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
-              {logicType === "no_duplicates" 
-                ? "Semua item sudah ditampilkan di atas karena tidak ada duplikat." 
-                : "Semua produk memiliki stok ≥ 3 item. Sistem bekerja normal."
-              }
+              {logicType === "no_duplicates"
+                ? "Semua item sudah ditampilkan di atas karena tidak ada duplikat."
+                : "Semua produk memiliki stok ≥ 3 item. Sistem bekerja normal."}
             </p>
           </div>
         )}

@@ -106,7 +106,8 @@ const UserTable = () => {
         ...pagination,
         current: params.current || pagination.current,
         pageSize: params.pageSize || pagination.pageSize,
-        total:          response.data.total ||
+        total:
+          response.data.total ||
           (response.data.data ? response.data.data.length : 0),
       });
     } catch (error) {
@@ -172,7 +173,8 @@ const UserTable = () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
             }
-          );          message.success("Pengguna berhasil dihapus");
+          );
+          message.success("Pengguna berhasil dihapus");
           fetchData();
         } catch (error) {
           message.error("Gagal menghapus pengguna");
@@ -202,7 +204,8 @@ const UserTable = () => {
             "Content-Type": "application/json",
           },
         }
-      );      message.success("Data pengguna berhasil diperbarui");
+      );
+      message.success("Data pengguna berhasil diperbarui");
       setEditModalVisible(false);
       fetchData();
     } catch (error) {
@@ -212,10 +215,7 @@ const UserTable = () => {
 
   return (
     <Card>
-      <Space
-        direction="vertical"
-        style={{ width: "100%", marginBottom: 16 }}
-      >
+      <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
         <Space wrap>
           <Input
             placeholder="Cari nama pengguna"
@@ -245,11 +245,7 @@ const UserTable = () => {
         }}
         footer={null}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleEditSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           <Form.Item
             name="name"
             label="Nama"
@@ -281,10 +277,7 @@ const UserTable = () => {
           >
             <Select>
               {ROLES.map((role) => (
-                <Option
-                  key={role.value}
-                  value={role.value}
-                >
+                <Option key={role.value} value={role.value}>
                   {role.label}
                 </Option>
               ))}
@@ -293,10 +286,7 @@ const UserTable = () => {
 
           <Form.Item>
             <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-              >
+              <Button type="primary" htmlType="submit">
                 Simpan
               </Button>
               <Button

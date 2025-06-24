@@ -38,43 +38,48 @@ const StatsGrid = () => {
       };
 
       // Fetch all data in parallel
-      const [usersResponse, productsResponse, stockResponse] = await Promise.allSettled([
-        // Get all users to filter out admin
-        axios.get("http://localhost:5000/api/auth/users", {
-          params: { page: 1, limit: 1000 }, // Get all users to count properly
-          headers,
-        }),
-        // Get all products to count them
-        axios.get("http://localhost:5000/api/products", {
-          params: { page: 1, limit: 1000 }, // Get all products to count properly
-          headers,
-        }),        // Get all stock data using the no-pagination endpoint
-        axios.get("http://localhost:5000/api/inventory/all", {
-          headers,
-        }),
-      ]);
+      const [usersResponse, productsResponse, stockResponse] =
+        await Promise.allSettled([
+          // Get all users to filter out admin
+          axios.get("http://localhost:5000/api/auth/users", {
+            params: { page: 1, limit: 1000 }, // Get all users to count properly
+            headers,
+          }),
+          // Get all products to count them
+          axios.get("http://localhost:5000/api/products", {
+            params: { page: 1, limit: 1000 }, // Get all products to count properly
+            headers,
+          }), // Get all stock data using the no-pagination endpoint
+          axios.get("http://localhost:5000/api/inventory/all", {
+            headers,
+          }),
+        ]);
 
       // Extract and count users (excluding admin)
       let totalUsers = 0;
-      if (usersResponse.status === 'fulfilled') {        const userData = usersResponse.value.data;
+      if (usersResponse.status === "fulfilled") {
+        const userData = usersResponse.value.data;
         const users = userData.data || [];
         // Count users excluding admin role
-        totalUsers = users.filter(user => user.role !== 'admin').length;
+        totalUsers = users.filter((user) => user.role !== "admin").length;
       }
 
       // Extract and count all products
-      let totalProducts = 0;      if (productsResponse.status === 'fulfilled') {
+      let totalProducts = 0;
+      if (productsResponse.status === "fulfilled") {
         const productData = productsResponse.value.data;
         const products = productData.data || [];
         totalProducts = products.length;
       }
 
       let nonExpiredStock = 0;
-      let aboutToExpireStock = 0;      if (stockResponse.status === 'fulfilled') {
-        const stockData = stockResponse.value.data;        const stockItems = stockData.data || [];
+      let aboutToExpireStock = 0;
+      if (stockResponse.status === "fulfilled") {
+        const stockData = stockResponse.value.data;
+        const stockItems = stockData.data || [];
         const now = dayjs();
-        
-        stockItems.forEach(item => {
+
+        stockItems.forEach((item) => {
           // Only count items that are not used (available stock)
           if (!item.useDate) {
             if (!item.expiredDate) {
@@ -83,7 +88,7 @@ const StatsGrid = () => {
             } else {
               const expiry = dayjs(item.expiredDate);
               const daysUntilExpiry = expiry.diff(now, "day");
-              
+
               if (daysUntilExpiry >= 0 && daysUntilExpiry < 30) {
                 // Items expiring within 30 days
                 aboutToExpireStock++;
@@ -93,7 +98,8 @@ const StatsGrid = () => {
               }
               // Items already expired are not counted in either category
             }
-          }        });
+          }
+        });
       }
 
       // Update stats data
@@ -122,18 +128,19 @@ const StatsGrid = () => {
           icon: "report",
           iconColor: "icon-purple",
         },
-      ]);      // Log any failed requests
-      [usersResponse, productsResponse, stockResponse].forEach((response, index) => {
-        if (response.status === 'rejected') {
-          if (response.reason?.response?.status === 401) {
-            message.error("Session expired. Please login again.");
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
+      ]); // Log any failed requests
+      [usersResponse, productsResponse, stockResponse].forEach(
+        (response, index) => {
+          if (response.status === "rejected") {
+            if (response.reason?.response?.status === 401) {
+              message.error("Session expired. Please login again.");
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              window.location.href = "/login";
+            }
           }
         }
-      });
-
+      );
     } catch (error) {
       message.error("Gagal memuat data statistik");
     }

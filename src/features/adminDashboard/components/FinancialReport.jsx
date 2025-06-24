@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Card, DatePicker, Button, Statistic, Row, Col, message, Spin } from "antd";
-import { LeftOutlined, RightOutlined, CalendarOutlined } from "@ant-design/icons";
+import {
+  Card,
+  DatePicker,
+  Button,
+  Statistic,
+  Row,
+  Col,
+  message,
+  Spin,
+} from "antd";
+import {
+  LeftOutlined,
+  RightOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -13,15 +26,15 @@ const FinancialReport = () => {
     profit: 0,
     hasData: false,
     hasNextData: false,
-    hasPrevData: false
+    hasPrevData: false,
   });
 
   const fetchReportData = async (month) => {
     setLoading(true);
     try {
-      const monthStr = month.format('YYYY-MM');
+      const monthStr = month.format("YYYY-MM");
       const token = localStorage.getItem("token");
-        if (!token) {
+      if (!token) {
         message.error("Session expired. Please login again.");
         window.location.href = "/login";
         return;
@@ -32,48 +45,57 @@ const FinancialReport = () => {
       };
 
       // Fetch all data in parallel
-      const [expensesResponse, revenueResponse, nextDataResponse, prevDataResponse] = await Promise.allSettled([
+      const [
+        expensesResponse,
+        revenueResponse,
+        nextDataResponse,
+        prevDataResponse,
+      ] = await Promise.allSettled([
         // Fetch inventory expenses for the month
         axios.get(`http://localhost:5000/api/inventory/expenses`, {
           params: { month: monthStr },
           headers,
         }),
-        
+
         // Fetch transaction revenue for the month
         axios.get(`http://localhost:5000/api/transactions/revenue`, {
           params: { month: monthStr },
           headers,
         }),
-        
+
         // Check if next month has data
         axios.get(`http://localhost:5000/api/transactions/check-data`, {
-          params: { month: month.add(1, 'month').format('YYYY-MM') },
+          params: { month: month.add(1, "month").format("YYYY-MM") },
           headers,
         }),
-        
+
         // Check if previous month has data
         axios.get(`http://localhost:5000/api/transactions/check-data`, {
-          params: { month: month.subtract(1, 'month').format('YYYY-MM') },
+          params: { month: month.subtract(1, "month").format("YYYY-MM") },
           headers,
-        })
+        }),
       ]);
 
       // Extract data with error handling
-      const expenses = expensesResponse.status === 'fulfilled' 
-        ? expensesResponse.value.data.data?.totalExpenses || 0 
-        : 0;
-        
-      const revenue = revenueResponse.status === 'fulfilled' 
-        ? revenueResponse.value.data.data?.totalRevenue || 0 
-        : 0;
-        
-      const hasNextData = nextDataResponse.status === 'fulfilled' 
-        ? nextDataResponse.value.data.data?.hasData || false 
-        : false;
-        
-      const hasPrevData = prevDataResponse.status === 'fulfilled' 
-        ? prevDataResponse.value.data.data?.hasData || false 
-        : false;
+      const expenses =
+        expensesResponse.status === "fulfilled"
+          ? expensesResponse.value.data.data?.totalExpenses || 0
+          : 0;
+
+      const revenue =
+        revenueResponse.status === "fulfilled"
+          ? revenueResponse.value.data.data?.totalRevenue || 0
+          : 0;
+
+      const hasNextData =
+        nextDataResponse.status === "fulfilled"
+          ? nextDataResponse.value.data.data?.hasData || false
+          : false;
+
+      const hasPrevData =
+        prevDataResponse.status === "fulfilled"
+          ? prevDataResponse.value.data.data?.hasData || false
+          : false;
 
       const profit = revenue - expenses;
       const hasData = expenses > 0 || revenue > 0;
@@ -84,10 +106,15 @@ const FinancialReport = () => {
         profit,
         hasData,
         hasNextData,
-        hasPrevData
-      });      // Log any failed requests
-      [expensesResponse, revenueResponse, nextDataResponse, prevDataResponse].forEach((response, index) => {
-        if (response.status === 'rejected') {
+        hasPrevData,
+      }); // Log any failed requests
+      [
+        expensesResponse,
+        revenueResponse,
+        nextDataResponse,
+        prevDataResponse,
+      ].forEach((response, index) => {
+        if (response.status === "rejected") {
           // Handle authorization errors
           if (response.reason?.response?.status === 401) {
             message.error("Session expired. Please login again.");
@@ -98,7 +125,8 @@ const FinancialReport = () => {
             message.error("Access denied. Admin privileges required.");
           }
         }
-      });    } catch (error) {
+      });
+    } catch (error) {
       message.error("Gagal memuat data laporan");
       setReportData({
         expenses: 0,
@@ -106,9 +134,9 @@ const FinancialReport = () => {
         profit: 0,
         hasData: false,
         hasNextData: false,
-        hasPrevData: false
+        hasPrevData: false,
       });
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -119,13 +147,13 @@ const FinancialReport = () => {
 
   const handlePrevMonth = () => {
     if (reportData.hasPrevData) {
-      setCurrentMonth(prev => prev.subtract(1, 'month'));
+      setCurrentMonth((prev) => prev.subtract(1, "month"));
     }
   };
 
   const handleNextMonth = () => {
     if (reportData.hasNextData) {
-      setCurrentMonth(prev => prev.add(1, 'month'));
+      setCurrentMonth((prev) => prev.add(1, "month"));
     }
   };
 
@@ -136,9 +164,9 @@ const FinancialReport = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -157,7 +185,7 @@ const FinancialReport = () => {
           >
             Bulan Sebelumnya
           </Button>
-          
+
           <div className="current-month">
             <DatePicker
               picker="month"
@@ -169,7 +197,7 @@ const FinancialReport = () => {
               className="month-picker"
             />
           </div>
-          
+
           <Button
             icon={<RightOutlined />}
             onClick={handleNextMonth}
@@ -191,7 +219,7 @@ const FinancialReport = () => {
                     title="Total Pengeluaran"
                     value={reportData.expenses}
                     formatter={(value) => formatCurrency(value)}
-                    valueStyle={{ color: '#f5222d' }}
+                    valueStyle={{ color: "#f5222d" }}
                     prefix="💸"
                   />
                   <div className="stat-description">
@@ -199,14 +227,14 @@ const FinancialReport = () => {
                   </div>
                 </Card>
               </Col>
-              
+
               <Col xs={24} sm={8}>
                 <Card className="stat-card revenue">
                   <Statistic
                     title="Total Pendapatan"
                     value={reportData.revenue}
                     formatter={(value) => formatCurrency(value)}
-                    valueStyle={{ color: '#52c41a' }}
+                    valueStyle={{ color: "#52c41a" }}
                     prefix="💰"
                   />
                   <div className="stat-description">
@@ -214,20 +242,26 @@ const FinancialReport = () => {
                   </div>
                 </Card>
               </Col>
-              
+
               <Col xs={24} sm={8}>
-                <Card className={`stat-card profit ${reportData.profit >= 0 ? 'positive' : 'negative'}`}>
+                <Card
+                  className={`stat-card profit ${
+                    reportData.profit >= 0 ? "positive" : "negative"
+                  }`}
+                >
                   <Statistic
                     title="Total Keuntungan"
                     value={reportData.profit}
                     formatter={(value) => formatCurrency(value)}
-                    valueStyle={{ 
-                      color: reportData.profit >= 0 ? '#52c41a' : '#f5222d' 
+                    valueStyle={{
+                      color: reportData.profit >= 0 ? "#52c41a" : "#f5222d",
                     }}
                     prefix={reportData.profit >= 0 ? "📈" : "📉"}
                   />
                   <div className="stat-description">
-                    {reportData.profit >= 0 ? 'Keuntungan bersih' : 'Kerugian bersih'}
+                    {reportData.profit >= 0
+                      ? "Keuntungan bersih"
+                      : "Kerugian bersih"}
                   </div>
                 </Card>
               </Col>
@@ -236,7 +270,10 @@ const FinancialReport = () => {
             <div className="no-data">
               <div className="no-data-icon">📊</div>
               <h3>Tidak Ada Data</h3>
-              <p>Tidak ada data laporan untuk bulan {currentMonth.format('MMMM YYYY')}</p>
+              <p>
+                Tidak ada data laporan untuk bulan{" "}
+                {currentMonth.format("MMMM YYYY")}
+              </p>
             </div>
           )}
         </Spin>
