@@ -4,7 +4,8 @@ export const navigationItems = [
     label: "Home",
     icon: "home",
     type: "simple",
-  },  {
+  },
+  {
     id: "Laporan",
     label: "Laporan",
     icon: "report",
@@ -13,12 +14,6 @@ export const navigationItems = [
   {
     id: "LaporanStok",
     label: "Laporan Stok",
-    icon: "stock",
-    type: "simple",
-  },
-  {
-    id: "Stok",
-    label: "Stok",
     icon: "stock",
     type: "simple",
   },
@@ -32,7 +27,8 @@ export const navigationItems = [
     id: "Users",
     label: "Users",
     icon: "users",
-    type: "dropdown",    submenu: [
+    type: "dropdown",
+    submenu: [
       {
         id: "UserList",
         label: "User List",
@@ -42,6 +38,7 @@ export const navigationItems = [
         id: "CreateUser",
         label: "Create User",
         icon: "userPlus",
-      },    ],
+      },
+    ],
   },
 ];
