@@ -1,7 +1,6 @@
 import React from "react";
 import { renderIcon } from "../utils/iconUtils";
 import StatsGrid from "./StatsGrid";
-import WelcomeCard from "./WelcomeCard";
 import StockTable from "./StockTable";
 import ProductTable from "./ProductTable";
 import UserTable from "./UserTable";
@@ -16,10 +15,6 @@ const ContentArea = ({ activeTab }) => {
       case "Home":
         return (
           <div>
-            <WelcomeCard
-              title="Selamat Datang di Admin Dashboard"
-              text="Kelola sistem Anda dengan mudah melalui dashboard ini. Gunakan menu di sebelah kiri untuk navigasi ke berbagai fitur yang tersedia."
-            />
             <StatsGrid />
             <LowStockNotification />
           </div>
