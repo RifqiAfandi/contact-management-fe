@@ -264,12 +264,7 @@ const LaporanStok = () => {
 
   return (
     <div style={{ padding: "24px" }}>
-      {" "}
-      <Card style={{ marginBottom: "24px" }}>
-        <Row gutter={16} align="middle">
-          <Col span={5}>
-            <h2 style={{ margin: 0 }}>📊 Laporan Stok</h2>
-          </Col>
+      <Card style={{ marginBottom: "24px" }}>        <Row gutter={16} align="middle">
           <Col span={5}>
             <Select
               value={filterPeriod}
@@ -293,16 +288,18 @@ const LaporanStok = () => {
               placeholder={["Tanggal Mulai", "Tanggal Akhir"]}
             />
           </Col>
-          <Col span={4}>
-            <Button
-              type="primary"
-              icon={<ReloadOutlined />}
-              onClick={refreshData}
-              loading={loading || loadingUsed}
-              style={{ width: "100%" }}
-            >
-              Refresh
-            </Button>
+          <Col span={9}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                onClick={refreshData}
+                loading={loading || loadingUsed}
+                style={{ width: "120px" }}
+              >
+                Refresh
+              </Button>
+            </div>
           </Col>
         </Row>
       </Card>

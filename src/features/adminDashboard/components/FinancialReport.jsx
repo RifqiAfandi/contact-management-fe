@@ -174,7 +174,7 @@ const FinancialReport = () => {
 
   return (
     <div className="financial-report">
-      <Card title="📊 Laporan Keuangan Bulanan" className="report-card">
+      <Card className="report-card">
         {/* Month Navigation */}
         <div className="month-navigation">
           <Button

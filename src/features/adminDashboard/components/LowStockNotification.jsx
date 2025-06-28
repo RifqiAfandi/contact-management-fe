@@ -154,35 +154,6 @@ const LowStockNotification = () => {
     >
       {" "}
       <Spin spinning={loading}>
-        {/* Logic Explanation */}
-        <div
-          style={{
-            marginBottom: "16px",
-            padding: "12px",
-            backgroundColor:
-              logicType === "no_duplicates" ? "#fff2f0" : "#fff7e6",
-            borderRadius: "6px",
-            border: `1px solid ${
-              logicType === "no_duplicates" ? "#ffccc7" : "#ffd591"
-            }`,
-            fontSize: "13px",
-            color: logicType === "no_duplicates" ? "#a8071a" : "#d46b08",
-          }}
-        >
-          <strong>
-            {logicType === "no_duplicates"
-              ? "🚨 Mode Khusus Aktif:"
-              : "📌 Mode Standar:"}
-          </strong>{" "}
-          {logicType === "no_duplicates"
-            ? "Tidak ada item duplikat ditemukan dalam database. SEMUA item ditampilkan dalam notifikasi karena setiap item hanya ada 1."
-            : "Item dengan jumlah kurang dari 3 ditampilkan dalam notifikasi. Item dengan 3+ tidak ditampilkan."}
-          {explanation && (
-            <div style={{ marginTop: "6px", fontStyle: "italic" }}>
-              📝 {explanation}
-            </div>
-          )}
-        </div>
         {lowStockItems.length > 0 ? (
           <>
             <Table

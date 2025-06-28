@@ -22,7 +22,6 @@ const ContentArea = ({ activeTab }) => {
       case "Laporan":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>📊 Laporan Keuangan</h2>
             <FinancialReport />
           </div>
         );
@@ -30,7 +29,6 @@ const ContentArea = ({ activeTab }) => {
       case "LaporanStok":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>📦 Laporan Stok</h2>
             <LaporanStok />
           </div>
         );
@@ -38,7 +36,6 @@ const ContentArea = ({ activeTab }) => {
       case "Stok":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>📦 Manajemen Stok</h2>
             <StockTable />
           </div>
         );
@@ -46,14 +43,12 @@ const ContentArea = ({ activeTab }) => {
       case "Produk":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>📋 Manajemen Produk</h2>
             <ProductTable />
           </div>
         );
       case "CreateUser":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>👤 Buat User Baru</h2>
             <CreateUserForm />
           </div>
         );
@@ -61,7 +56,6 @@ const ContentArea = ({ activeTab }) => {
       case "UserList":
         return (
           <div>
-            <h2 style={{ marginBottom: "24px" }}>👥 Daftar Pengguna</h2>
             <UserTable />
           </div>
         );
