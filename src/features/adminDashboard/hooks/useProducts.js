@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { message } from "antd";
-import { apiRequest } from "../../warehousePage/utils/apiUtils";
+import { useApi } from "./useApi";
+import { apiRequest } from "../utils/apiUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -17,6 +18,8 @@ export const useProducts = () => {
     minPrice: null,
     maxPrice: null,
   });
+
+  const { get, post, put, del } = useApi();
   const fetchProducts = async (params = {}) => {
     setLoading(true);
     setError(null);
@@ -63,8 +66,7 @@ export const useProducts = () => {
           current: params.current || prev.current,
           pageSize: params.pageSize || prev.pageSize,
           total: 0,
-        }));
-        message.info("Tidak ada produk yang ditemukan");
+        }));        message.info("Tidak ada produk yang ditemukan");
       } else {
         message.error(error.message || "Gagal memuat data produk");
       }
@@ -72,23 +74,7 @@ export const useProducts = () => {
       setLoading(false);
     }
   };
-  const handleDelete = async (productId, productName) => {
-    try {
-      const response = await apiRequest(`/api/products/${productId}`, {
-        method: "DELETE",
-      });
-      if (response.isSuccess) {
-        message.success("Produk berhasil dihapus");
 
-        // Refresh the product list
-        await refreshProducts();
-        return true;
-      }
-    } catch (error) {
-      message.error(error.message || "Gagal menghapus produk");
-      return false;
-    }
-  };
   const refreshProducts = async () => {
     await fetchProducts({
       current: pagination.current,
@@ -118,13 +104,9 @@ export const useProducts = () => {
   const handleSearch = (searchFilters) => {
     setFilters(searchFilters);
     fetchProducts({ current: 1, pageSize: pagination.pageSize });
-  };
-  const handleCreate = async (formData) => {
+  };  const handleCreate = async (formData) => {
     try {
-      const response = await apiRequest("/api/products", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await post("/api/products", formData);
       if (response.isSuccess) {
         message.success("Produk berhasil ditambahkan");
         await refreshProducts();
@@ -135,12 +117,10 @@ export const useProducts = () => {
       return false;
     }
   };
+
   const handleUpdate = async (productId, formData) => {
     try {
-      const response = await apiRequest(`/api/products/${productId}`, {
-        method: "PUT",
-        body: formData,
-      });
+      const response = await put(`/api/products/${productId}`, formData);
       if (response.isSuccess) {
         message.success("Produk berhasil diperbarui");
         await refreshProducts();
@@ -148,6 +128,20 @@ export const useProducts = () => {
       }
     } catch (error) {
       message.error(error.message || "Gagal memperbarui produk");
+      return false;
+    }
+  };
+
+  const handleDelete = async (productId, productName) => {
+    try {
+      const response = await del(`/api/products/${productId}`);
+      if (response.isSuccess) {
+        message.success("Produk berhasil dihapus");
+        await refreshProducts();
+        return true;
+      }
+    } catch (error) {
+      message.error(error.message || "Gagal menghapus produk");
       return false;
     }
   };
