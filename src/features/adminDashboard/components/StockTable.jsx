@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Table, Input, DatePicker, Space, Card, message } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useInventory } from "../hooks/useInventory";
 
 const StockTable = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { 
+    inventoryItems,
+    loading,
+    error,
+    fetchAllInventory,
+    refreshInventory 
+  } = useInventory();
+
+  // Local state for filtering and pagination
+  const [filteredData, setFilteredData] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 5,
@@ -84,62 +92,72 @@ const StockTable = () => {
       },
     },
   ];
+  // Filter and paginate data based on current filters
+  const filterAndPaginateData = () => {
+    let filtered = [...inventoryItems];
 
-  const fetchData = async (params = {}) => {
-    setLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/api/inventory", {
-        params: {
-          page: params.current || pagination.current,
-          limit: params.pageSize || pagination.pageSize,
-          itemName: filters.itemName,
-          entryDateStart: filters.dateFrom?.format("YYYY-MM-DD"),
-          entryDateEnd: filters.dateTo?.format("YYYY-MM-DD"),
-          expiredDateStart: filters.expiryFrom?.format("YYYY-MM-DD"),
-          expiredDateEnd: filters.expiryTo?.format("YYYY-MM-DD"),
-          sortField: params.sortField,
-          sortOrder: params.sortOrder,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      // Gunakan response.data.data dan response.data.pagination.totalItems
-      setData(response.data.data || []);
-      setPagination({
-        ...pagination,
-        current: params.current || pagination.current,
-        pageSize: params.pageSize || pagination.pageSize,
-        total: response.data.pagination?.totalItems || 0,
-      });
-    } catch (error) {
-      message.error("Gagal memuat data stok");
+    // Apply filters
+    if (filters.itemName) {
+      filtered = filtered.filter(item =>
+        item.itemName.toLowerCase().includes(filters.itemName.toLowerCase())
+      );
     }
-    setLoading(false);
+
+    if (filters.dateFrom && filters.dateTo) {
+      filtered = filtered.filter(item => {
+        const entryDate = dayjs(item.entryDate);
+        return entryDate.isAfter(filters.dateFrom.subtract(1, 'day')) && 
+               entryDate.isBefore(filters.dateTo.add(1, 'day'));
+      });
+    }
+
+    if (filters.expiryFrom && filters.expiryTo) {
+      filtered = filtered.filter(item => {
+        if (!item.expiredDate) return false;
+        const expiryDate = dayjs(item.expiredDate);
+        return expiryDate.isAfter(filters.expiryFrom.subtract(1, 'day')) && 
+               expiryDate.isBefore(filters.expiryTo.add(1, 'day'));
+      });
+    }
+
+    // Update pagination total
+    setPagination(prev => ({
+      ...prev,
+      total: filtered.length
+    }));
+
+    // Apply pagination
+    const startIndex = (pagination.current - 1) * pagination.pageSize;
+    const endIndex = startIndex + pagination.pageSize;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+
+    setFilteredData(paginatedData);
   };
 
+  // Effect to filter data when inventoryItems or filters change
   useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(filters)]);
-
-  const handleTableChange = (newPagination, filters, sorter) => {
-    fetchData({
+    filterAndPaginateData();
+  }, [inventoryItems, filters, pagination.current, pagination.pageSize]);
+  const handleTableChange = (newPagination, tableFilters, sorter) => {
+    setPagination({
+      ...pagination,
       current: newPagination.current,
       pageSize: newPagination.pageSize,
-      sortField: sorter.field,
-      sortOrder:
-        sorter.order === "ascend"
-          ? "asc"
-          : sorter.order === "descend"
-          ? "desc"
-          : undefined,
     });
+
+    // Note: Sorting can be implemented here if needed
+    // For now, we'll keep it simple with just pagination
   };
 
   const handleSearch = (value) => {
     setFilters((prev) => ({
       ...prev,
       itemName: value,
+    }));
+    // Reset pagination to first page when searching
+    setPagination(prev => ({
+      ...prev,
+      current: 1
     }));
   };
 
@@ -148,6 +166,11 @@ const StockTable = () => {
       ...prev,
       [type + "From"]: dates?.[0] || null,
       [type + "To"]: dates?.[1] || null,
+    }));
+    // Reset pagination to first page when filtering
+    setPagination(prev => ({
+      ...prev,
+      current: 1
     }));
   };
 
@@ -170,11 +193,9 @@ const StockTable = () => {
             onChange={(dates) => handleDateRangeChange(dates, "expiry")}
           />
         </Space>
-      </Space>
-
-      <Table
+      </Space>      <Table
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData}
         pagination={pagination}
         loading={loading}
         onChange={handleTableChange}

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Card, Table, Tag, message, Spin } from "antd";
 import { AlertOutlined } from "@ant-design/icons";
-import axios from "axios";
 import dayjs from "dayjs";
+import { useInventory } from "../hooks/useInventory";
 
 const LowStockNotification = () => {
-  const [lowStockItems, setLowStockItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { 
+    lowStockItems,
+    loading,
+    fetchLowStockItems 
+  } = useInventory();
+  
   const [logicType, setLogicType] = useState("standard"); // "standard" or "no_duplicates"
   const [explanation, setExplanation] = useState("");
 
@@ -81,48 +85,20 @@ const LowStockNotification = () => {
       },
     },
   ];
-
   const fetchLowStockData = async () => {
-    setLoading(true);
     try {
-      const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
-
-      const response = await axios.get(
-        "http://localhost:5000/api/inventory/low-stock",
-        {
-          headers,
-        }
-      );
-
-      if (response.data.isSuccess) {
-        const lowStockData = response.data.data || [];
-        const logicUsed = response.data.logic || "standard";
-        const explanationText = response.data.explanation || "";
-
-        setLowStockItems(lowStockData);
-        setLogicType(logicUsed);
-        setExplanation(explanationText);
-      } else {
-        setLowStockItems([]);
+      const data = await fetchLowStockItems();
+      if (data && Array.isArray(data)) {
+        setLogicType("standard");
+        setExplanation("Data stok rendah berhasil dimuat");} else {
         setLogicType("standard");
         setExplanation("");
       }
     } catch (error) {
-      if (error.response?.status === 401) {
-        message.error("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/login";
-      } else {
-        message.error("Gagal memuat data stok yang hampir habis");
-      }
-      setLowStockItems([]);
+      message.error("Gagal memuat data stok yang hampir habis");
       setLogicType("standard");
       setExplanation("");
     }
-    setLoading(false);
   };
 
   useEffect(() => {

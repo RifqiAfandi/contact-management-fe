@@ -14,8 +14,8 @@ import {
   RightOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
 import dayjs from "dayjs";
+import { apiRequest } from "../utils/apiUtils";
 
 const FinancialReport = () => {
   const [loading, setLoading] = useState(false);
@@ -27,23 +27,11 @@ const FinancialReport = () => {
     hasData: false,
     hasNextData: false,
     hasPrevData: false,
-  });
-
-  const fetchReportData = async (month) => {
+  });  const fetchReportData = async (month) => {
     setLoading(true);
     try {
       const monthStr = month.format("YYYY-MM");
-      const token = localStorage.getItem("token");
-      if (!token) {
-        message.error("Session expired. Please login again.");
-        window.location.href = "/login";
-        return;
-      }
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
+      
       // Fetch all data in parallel
       const [
         expensesResponse,
@@ -52,49 +40,35 @@ const FinancialReport = () => {
         prevDataResponse,
       ] = await Promise.allSettled([
         // Fetch inventory expenses for the month
-        axios.get(`http://localhost:5000/api/inventory/expenses`, {
-          params: { month: monthStr },
-          headers,
-        }),
+        apiRequest(`/api/inventory/expenses?month=${monthStr}`),
 
         // Fetch transaction revenue for the month
-        axios.get(`http://localhost:5000/api/transactions/revenue`, {
-          params: { month: monthStr },
-          headers,
-        }),
+        apiRequest(`/api/transactions/revenue?month=${monthStr}`),
 
         // Check if next month has data
-        axios.get(`http://localhost:5000/api/transactions/check-data`, {
-          params: { month: month.add(1, "month").format("YYYY-MM") },
-          headers,
-        }),
+        apiRequest(`/api/transactions/check-data?month=${month.add(1, "month").format("YYYY-MM")}`),
 
         // Check if previous month has data
-        axios.get(`http://localhost:5000/api/transactions/check-data`, {
-          params: { month: month.subtract(1, "month").format("YYYY-MM") },
-          headers,
-        }),
-      ]);
-
-      // Extract data with error handling
+        apiRequest(`/api/transactions/check-data?month=${month.subtract(1, "month").format("YYYY-MM")}`),
+      ]);      // Extract data with error handling
       const expenses =
         expensesResponse.status === "fulfilled"
-          ? expensesResponse.value.data.data?.totalExpenses || 0
+          ? expensesResponse.value.data?.totalExpenses || 0
           : 0;
 
       const revenue =
         revenueResponse.status === "fulfilled"
-          ? revenueResponse.value.data.data?.totalRevenue || 0
+          ? revenueResponse.value.data?.totalRevenue || 0
           : 0;
 
       const hasNextData =
         nextDataResponse.status === "fulfilled"
-          ? nextDataResponse.value.data.data?.hasData || false
+          ? nextDataResponse.value.data?.hasData || false
           : false;
 
       const hasPrevData =
         prevDataResponse.status === "fulfilled"
-          ? prevDataResponse.value.data.data?.hasData || false
+          ? prevDataResponse.value.data?.hasData || false
           : false;
 
       const profit = revenue - expenses;
@@ -125,8 +99,7 @@ const FinancialReport = () => {
             message.error("Access denied. Admin privileges required.");
           }
         }
-      });
-    } catch (error) {
+      });    } catch (error) {
       message.error("Gagal memuat data laporan");
       setReportData({
         expenses: 0,

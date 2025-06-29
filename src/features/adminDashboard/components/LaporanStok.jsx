@@ -42,38 +42,31 @@ const LaporanStok = () => {
     dayjs(),
   ]);
   const [filterPeriod, setFilterPeriod] = useState("7days");
-
+  
   // Filter data based on date range and status
   const filterStockData = () => {
-    if (!inventoryItems.length) return;
-
-    const startDate = dateRange[0].toDate();
-    const endDate = dateRange[1].toDate();
-
-    // Filter available stock (not used and within date range)
+    if (!inventoryItems.length) {
+      return;
+    }
     const availableStock = inventoryItems.filter((item) => {
-      const entryDate = dayjs(item.entryDate);
-      const isInDateRange =
-        entryDate.isAfter(dateRange[0]) &&
-        entryDate.isBefore(dateRange[1].add(1, "day"));
-      const isNotUsed = item.status !== "Terpakai";
-      return isInDateRange && isNotUsed;
+      const isNotUsed = !item.useDate && item.status !== "Terpakai";
+      return isNotUsed;
     });
 
-    // Filter used stock (used and within date range based on useDate)
     const usedStock = inventoryItems.filter((item) => {
-      if (item.status !== "Terpakai" || !item.useDate) return false;
+      if (!item.useDate && item.status !== "Terpakai") return false;
       
-      const useDate = dayjs(item.useDate);
-      return (
-        useDate.isAfter(dateRange[0]) &&
-        useDate.isBefore(dateRange[1].add(1, "day"))
-      );
+      const useDate = item.useDate ? dayjs(item.useDate) : dayjs(item.entryDate);
+      const isInDateRange = useDate.isAfter(dateRange[0].subtract(1, 'day')) &&
+        useDate.isBefore(dateRange[1].add(1, "day"));
+      
+      return isInDateRange;
     });
 
-    setStokTersedia(availableStock);    setStokTerpakai(usedStock);
+    setStokTersedia(availableStock);
+    setStokTerpakai(usedStock);
   };
-
+  
   // Filter data when inventory items or date range changes
   useEffect(() => {
     filterStockData();
@@ -111,6 +104,7 @@ const LaporanStok = () => {
       setFilterPeriod("custom");
     }
   };
+
   const refreshData = () => {
     refreshInventory();
   };
@@ -179,7 +173,9 @@ const LaporanStok = () => {
         return <Tag color="green">Baik</Tag>;
       },
     },
-  ]; // Kolom untuk tabel stok terpakai
+  ]; 
+  
+  // Kolom untuk tabel stok terpakai
   const columnsStokTerpakai = [
     {
       title: "Nama Produk",
@@ -238,7 +234,8 @@ const LaporanStok = () => {
 
   return (
     <div style={{ padding: "24px" }}>
-      <Card style={{ marginBottom: "24px" }}>        <Row gutter={16} align="middle">
+      <Card style={{ marginBottom: "24px" }}>
+        <Row gutter={16} align="middle">
           <Col span={5}>
             <Select
               value={filterPeriod}
@@ -277,6 +274,7 @@ const LaporanStok = () => {
           </Col>
         </Row>
       </Card>
+
       {/* Statistik Ringkasan */}
       <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col xs={24} sm={12} md={6}>
@@ -288,7 +286,7 @@ const LaporanStok = () => {
               valueStyle={{ color: "#3f8600" }}
             />
           </Card>
-        </Col>{" "}
+        </Col>
         <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
@@ -334,9 +332,10 @@ const LaporanStok = () => {
           </Card>
         </Col>
       </Row>
+
       {/* Tabel Stok Tersedia */}
       <Card
-        title="🟢 Stok Yang Masih Ada"
+        title="🟢 Semua Stok Yang Masih Ada"
         style={{ marginBottom: "24px" }}
         extra={<Tag color="green">{stokTersedia.length} Items</Tag>}
       >
@@ -355,10 +354,11 @@ const LaporanStok = () => {
             scroll={{ x: 800 }}
           />
         </Spin>
-      </Card>{" "}
+      </Card>
+
       {/* Tabel Stok Terpakai */}
       <Card
-        title="🔵 Stok Yang Sudah Terpakai"
+        title={`🔵 Stok Yang Sudah Terpakai`}
         extra={<Tag color="blue">{stokTerpakai.length} Items</Tag>}
       >
         <Spin spinning={loading}>
@@ -377,6 +377,7 @@ const LaporanStok = () => {
           />
         </Spin>
       </Card>
+
       {/* Informasi Summary */}
       <Card title="📋 Ringkasan Laporan" style={{ marginTop: "24px" }}>
         <Row gutter={16}>
@@ -393,16 +394,11 @@ const LaporanStok = () => {
               </h4>
               <p style={{ margin: 0 }}>
                 Terdapat <strong>{stokTersedia.length} produk</strong> yang
-                masih memiliki stok dalam periode{" "}
-                <strong>
-                  {dateRange[0].format("DD/MM/YYYY")} -{" "}
-                  {dateRange[1].format("DD/MM/YYYY")}
-                </strong>
+                masih tersedia (belum terpakai) di inventory
               </p>
             </div>
-          </Col>{" "}
+          </Col>
           <Col span={12}>
-            {" "}
             <div
               style={{
                 padding: "16px",

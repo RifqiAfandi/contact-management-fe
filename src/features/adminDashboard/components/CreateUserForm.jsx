@@ -10,7 +10,7 @@ import {
   Space,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import axios from "axios";
+import { useUsers } from "../hooks/useUsers";
 
 const { Option } = Select;
 
@@ -21,11 +21,9 @@ const ROLES = [
 
 const CreateUserForm = () => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-
+  const { createUser, loading } = useUsers();
   const handleSubmit = async (values) => {
-    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("name", values.name);
@@ -36,19 +34,15 @@ const CreateUserForm = () => {
       if (values.profilImage && values.profilImage.file) {
         formData.append("image", values.profilImage.file);
       }
-      await axios.post("http://localhost:5000/api/auth/users", formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          // Jangan set Content-Type, biarkan browser yang mengatur
-        },
-      });
-      message.success("User berhasil dibuat");
-      form.resetFields();
-      setImageUrl("");
+      
+      const success = await createUser(formData);
+      if (success) {
+        form.resetFields();
+        setImageUrl("");
+      }
     } catch (error) {
       message.error("Gagal membuat user");
     }
-    setLoading(false);
   };
 
   const handleImageUpload = (info) => {

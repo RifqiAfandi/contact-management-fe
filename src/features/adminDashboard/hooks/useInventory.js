@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { message } from "antd";
-import { useApi } from "./useApi";
+import { apiRequest } from "../utils/apiUtils";
 
 export const useInventory = () => {
-  const { get, isLoading, error, setError } = useApi();
   const [inventoryItems, setInventoryItems] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [totalAvailable, setTotalAvailable] = useState(0);
   const [totalUsed, setTotalUsed] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  // Fetch all inventory items
+  const [error, setError] = useState(null);  // Fetch all inventory items
   const fetchAllInventory = async (filters = {}) => {
     try {
       setLoading(true);
@@ -19,7 +17,7 @@ export const useInventory = () => {
       const queryParams = new URLSearchParams(filters).toString();
       const endpoint = queryParams ? `/api/inventory/all?${queryParams}` : "/api/inventory/all";
       
-      const response = await get(endpoint);
+      const response = await apiRequest(endpoint);
       
       if (response && response.data) {
         setInventoryItems(response.data);
@@ -27,7 +25,9 @@ export const useInventory = () => {
         return response.data;
       }
       
-      return [];    } catch (error) {
+      return [];
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
       setError(error.message);
       message.error(error.message || "Gagal mengambil data inventory");
       return [];
@@ -39,14 +39,15 @@ export const useInventory = () => {
   // Fetch low stock notification
   const fetchLowStockItems = async () => {
     try {
-      const response = await get("/api/inventory/low-stock");
+      const response = await apiRequest("/api/inventory/low-stock");
       
       if (response && response.data) {
         setLowStockItems(response.data);
         return response.data;
       }
       
-      return [];    } catch (error) {
+      return [];
+    } catch (error) {
       setError(error.message);
       message.error(error.message || "Gagal mengambil data stok rendah");
       return [];
@@ -110,9 +111,8 @@ export const useInventory = () => {
     lowStockItems,
     totalAvailable,
     totalUsed,
-    
-    // Loading states
-    loading: loading || isLoading,
+      // Loading states
+    loading,
     error,
     
     // Functions

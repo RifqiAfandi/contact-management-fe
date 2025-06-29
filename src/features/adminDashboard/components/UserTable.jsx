@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import {
   Table,
   Input,
@@ -9,13 +8,13 @@ import {
   Button,
   Modal,
   Form,
-  message,
 } from "antd";
 import {
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { useUsers } from "../hooks/useUsers";
 
 const { Option } = Select;
 
@@ -25,20 +24,19 @@ const ROLES = [
 ];
 
 const UserTable = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 5,
-    total: 0,
-  });
-  const [filters, setFilters] = useState({
-    name: "",
-    role: undefined,
-  });
+
+  const {
+    users,
+    loading,
+    pagination,
+    handleTableChange,
+    handleSearch,
+    handleUpdate,
+    handleDelete,
+  } = useUsers();
 
   const columns = [
     {
@@ -76,7 +74,7 @@ const UserTable = () => {
             type="primary"
             danger
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+            onClick={() => handleUserDelete(record)}
           >
             Hapus
           </Button>
@@ -84,70 +82,6 @@ const UserTable = () => {
       ),
     },
   ];
-
-  const fetchData = async (params = {}) => {
-    setLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/api/auth/users", {
-        params: {
-          page: params.current || pagination.current,
-          limit: params.pageSize || pagination.pageSize,
-          name: filters.name,
-          role: filters.role,
-          sortField: params.sortField || undefined,
-          sortOrder: params.sortOrder || undefined,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setData(response.data.data || response.data.items || []);
-      setPagination({
-        ...pagination,
-        current: params.current || pagination.current,
-        pageSize: params.pageSize || pagination.pageSize,
-        total:
-          response.data.total ||
-          (response.data.data ? response.data.data.length : 0),
-      });
-    } catch (error) {
-      message.error("Gagal memuat data pengguna");
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(filters)]);
-
-  const handleTableChange = (newPagination, tableFilters, sorter) => {
-    const role = tableFilters.role?.[0];
-    setFilters((prev) => ({
-      ...prev,
-      role: role,
-    }));
-    fetchData({
-      current: newPagination.current,
-      pageSize: newPagination.pageSize,
-      sortField: sorter.field,
-      sortOrder:
-        sorter.order === "ascend"
-          ? "asc"
-          : sorter.order === "descend"
-          ? "desc"
-          : undefined,
-    });
-  };
-
-  const handleSearch = (value) => {
-    setFilters((prev) => ({
-      ...prev,
-      name: value,
-    }));
-    // Reset to first page when searching
-    fetchData({ current: 1, pageSize: pagination.pageSize });
-  };
-
   const handleEdit = (user) => {
     setEditingUser(user);
     form.setFieldsValue({
@@ -157,59 +91,32 @@ const UserTable = () => {
     });
     setEditModalVisible(true);
   };
-
-  const handleDelete = async (user) => {
+  const handleUserDelete = (user) => {
     Modal.confirm({
       title: "Konfirmasi Hapus",
       content: `Apakah Anda yakin ingin menghapus pengguna ${user.name}?`,
       okText: "Ya",
       cancelText: "Tidak",
       onOk: async () => {
-        try {
-          await axios.delete(
-            `http://localhost:5000/api/auth/users/${user.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          message.success("Pengguna berhasil dihapus");
-          fetchData();
-        } catch (error) {
-          message.error("Gagal menghapus pengguna");
-        }
+        await handleDelete(user.id, user.name);
       },
     });
   };
-
   const handleEditSubmit = async (values) => {
-    try {
-      const payload = {
-        name: values.name,
-        username: values.username,
-        role: values.role,
-      };
+    const payload = {
+      name: values.name,
+      username: values.username,
+      role: values.role,
+    };
 
-      if (values.password) {
-        payload.password = values.password;
-      }
+    if (values.password) {
+      payload.password = values.password;
+    }
 
-      await axios.put(
-        `http://localhost:5000/api/auth/users/${editingUser.id}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      message.success("Data pengguna berhasil diperbarui");
+    const success = await handleUpdate(editingUser.id, payload);
+    if (success) {
       setEditModalVisible(false);
-      fetchData();
-    } catch (error) {
-      message.error("Gagal memperbarui data pengguna");
+      form.resetFields();
     }
   };
 
@@ -220,7 +127,7 @@ const UserTable = () => {
           <Input
             placeholder="Cari nama pengguna"
             prefix={<SearchOutlined />}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => handleSearch({ name: e.target.value, role: undefined })}
             style={{ width: 200 }}
             allowClear
           />
@@ -229,7 +136,7 @@ const UserTable = () => {
 
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={users}
         pagination={pagination}
         loading={loading}
         onChange={handleTableChange}
