@@ -37,8 +37,6 @@ export const apiRequest = async (endpoint, options = {}) => {
 };
 
 export const handleApiError = (error) => {
-  console.error("API Error:", error);
-
   if (error.message?.includes("Failed to fetch")) {
     return "Koneksi ke server terputus. Periksa koneksi internet Anda.";
   }
@@ -85,9 +83,7 @@ export const fetchAllProducts = async (searchTerm = "", category = "", sortBy = 
 
   try {
     const response = await apiRequest(`/api/products?${params}`);
-    return response.data || [];
-  } catch (error) {
-    console.error("Error fetching all products:", error);
+    return response.data || [];  } catch (error) {
     throw error;
   }
 };

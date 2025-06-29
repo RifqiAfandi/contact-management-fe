@@ -32,13 +32,12 @@ const CATEGORIES = [
 ];
 
 const ProductTable = () => {
-  // Use the custom hook for products
   const {
     products,
     loading,
     pagination,
     filters,
-    handleDelete: deleteProduct,
+    deleteProduct,
     handleTableChange: onTableChange,
     handleSearch: onSearch,
     handleCreate: createProduct,
@@ -64,21 +63,19 @@ const ProductTable = () => {
       sellingPrice: product.sellingPrice,
     });
     setEditModalVisible(true);
-  };
+  };  const handleDelete = async (product) => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus produk "${product.productName}"?`)) {
+      return;
+    }
 
-  const handleDelete = (product) => {
-    Modal.confirm({
-      title: "Konfirmasi Hapus",
-      content: `Apakah Anda yakin ingin menghapus produk "${product.productName}"?`,
-      okText: "Ya",
-      cancelText: "Tidak",
-      onOk: async () => {
-        const success = await deleteProduct(product.id, product.productName);
-        if (success) {
-          // Additional UI feedback if needed
-        }
-      },
-    });
+    try {
+      const success = await deleteProduct(product.id, product.productName);
+      if (success) {
+        // Product deleted successfully
+      }
+    } catch (error) {
+      // Error handling is managed by the hook
+    }
   };
 
   const handleTableChange = (newPagination, tableFilters, sorter) => {

@@ -18,15 +18,23 @@ import {
   CalendarOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
 import dayjs from "dayjs";
+import { useInventory } from "../hooks/useInventory";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const LaporanStok = () => {
-  const [loading, setLoading] = useState(false);
-  const [loadingUsed, setLoadingUsed] = useState(false);
+  const { 
+    inventoryItems,
+    loading,
+    error,
+    fetchAllInventory,
+    filterByDateRange,
+    refreshInventory 
+  } = useInventory();
+  
+  // Local state for filtered data and UI
   const [stokTersedia, setStokTersedia] = useState([]);
   const [stokTerpakai, setStokTerpakai] = useState([]);
   const [dateRange, setDateRange] = useState([
@@ -34,76 +42,44 @@ const LaporanStok = () => {
     dayjs(),
   ]);
   const [filterPeriod, setFilterPeriod] = useState("7days");
-  const fetchStokTersedia = async () => {
-    setLoading(true);
-    try {
-      const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
 
-      // Fetch all available stock (status != 'Terpakai')
-      const response = await axios.get(
-        "http://localhost:5000/api/inventory/all",
-        {
-          headers,
-        }
+  // Filter data based on date range and status
+  const filterStockData = () => {
+    if (!inventoryItems.length) return;
+
+    const startDate = dateRange[0].toDate();
+    const endDate = dateRange[1].toDate();
+
+    // Filter available stock (not used and within date range)
+    const availableStock = inventoryItems.filter((item) => {
+      const entryDate = dayjs(item.entryDate);
+      const isInDateRange =
+        entryDate.isAfter(dateRange[0]) &&
+        entryDate.isBefore(dateRange[1].add(1, "day"));
+      const isNotUsed = item.status !== "Terpakai";
+      return isInDateRange && isNotUsed;
+    });
+
+    // Filter used stock (used and within date range based on useDate)
+    const usedStock = inventoryItems.filter((item) => {
+      if (item.status !== "Terpakai" || !item.useDate) return false;
+      
+      const useDate = dayjs(item.useDate);
+      return (
+        useDate.isAfter(dateRange[0]) &&
+        useDate.isBefore(dateRange[1].add(1, "day"))
       );
+    });
 
-      const allItems = response.data.data || [];
-
-      // Filter stock that is NOT used and within date range
-      const availableStock = allItems.filter((item) => {
-        const entryDate = dayjs(item.entryDate);
-        const isInDateRange =
-          entryDate.isAfter(dateRange[0]) &&
-          entryDate.isBefore(dateRange[1].add(1, "day"));
-        const isNotUsed = item.status !== "Terpakai";
-        return isInDateRange && isNotUsed;
-      });
-      setStokTersedia(availableStock);
-    } catch (error) {
-      message.error("Gagal memuat data stok tersedia");
-    }
-    setLoading(false);
+    setStokTersedia(availableStock);    setStokTerpakai(usedStock);
   };
 
-  const fetchStokTerpakai = async () => {
-    setLoadingUsed(true);
-    try {
-      const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
-
-      // Fetch all used stock (status = 'Terpakai')
-      const response = await axios.get(
-        "http://localhost:5000/api/inventory/all",
-        {
-          headers,
-        }
-      );
-
-      const allItems = response.data.data || [];
-
-      // Filter stock that is used and within date range (based on useDate)
-      const usedStock = allItems.filter((item) => {
-        if (item.status !== "Terpakai" || !item.useDate) return false;
-
-        const useDate = dayjs(item.useDate);
-        return (
-          useDate.isAfter(dateRange[0]) &&
-          useDate.isBefore(dateRange[1].add(1, "day"))
-        );
-      });
-      setStokTerpakai(usedStock);
-    } catch (error) {
-      message.error("Gagal memuat data stok terpakai");
-    }
-    setLoadingUsed(false);
-  };
+  // Filter data when inventory items or date range changes
   useEffect(() => {
-    fetchStokTersedia();
-    fetchStokTerpakai();
-  }, [dateRange]);
+    filterStockData();
+  }, [inventoryItems, dateRange]);
+
+  // Handle period selection
   const handlePeriodChange = (value) => {
     setFilterPeriod(value);
     const today = dayjs();
@@ -135,10 +111,8 @@ const LaporanStok = () => {
       setFilterPeriod("custom");
     }
   };
-
   const refreshData = () => {
-    fetchStokTersedia();
-    fetchStokTerpakai();
+    refreshInventory();
   };
 
   // Kolom untuk tabel stok tersedia
@@ -294,7 +268,7 @@ const LaporanStok = () => {
                 type="primary"
                 icon={<ReloadOutlined />}
                 onClick={refreshData}
-                loading={loading || loadingUsed}
+                loading={loading}
                 style={{ width: "120px" }}
               >
                 Refresh
@@ -387,7 +361,7 @@ const LaporanStok = () => {
         title="🔵 Stok Yang Sudah Terpakai"
         extra={<Tag color="blue">{stokTerpakai.length} Items</Tag>}
       >
-        <Spin spinning={loadingUsed}>
+        <Spin spinning={loading}>
           <Table
             columns={columnsStokTerpakai}
             dataSource={stokTerpakai}

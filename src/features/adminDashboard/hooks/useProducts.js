@@ -131,8 +131,7 @@ export const useProducts = () => {
       return false;
     }
   };
-
-  const handleDelete = async (productId, productName) => {
+  const deleteProduct = async (productId, productName) => {
     try {
       const response = await del(`/api/products/${productId}`);
       if (response.isSuccess) {
@@ -150,7 +149,6 @@ export const useProducts = () => {
   useEffect(() => {
     fetchProducts();
   }, [JSON.stringify(filters)]);
-
   return {
     products,
     loading,
@@ -159,7 +157,7 @@ export const useProducts = () => {
     filters,
     setFilters,
     fetchProducts,
-    handleDelete,
+    deleteProduct,
     refreshProducts,
     handleTableChange,
     handleSearch,

@@ -6,11 +6,9 @@ export const useAuth = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
+    if (storedUser) {      try {
         setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.error("Error parsing user data:", error);
         localStorage.removeItem("user");
       }
     }
