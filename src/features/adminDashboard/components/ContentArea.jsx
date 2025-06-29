@@ -6,7 +6,7 @@ import ProductTable from "./ProductTable";
 import UserTable from "./UserTable";
 import CreateUserForm from "./CreateUserForm";
 import FinancialReport from "./FinancialReport";
-import LaporanStok from "./LaporanStok";
+import StockReport from "./StockReport";
 import LowStockNotification from "./LowStockNotification";
 
 const ContentArea = ({ activeTab }) => {
@@ -18,8 +18,7 @@ const ContentArea = ({ activeTab }) => {
             <StatsGrid />
             <LowStockNotification />
           </div>
-        );
-      case "Laporan":
+        );      case "LaporanKeuangan":
         return (
           <div>
             <FinancialReport />
@@ -29,7 +28,7 @@ const ContentArea = ({ activeTab }) => {
       case "LaporanStok":
         return (
           <div>
-            <LaporanStok />
+            <StockReport />
           </div>
         );
 

@@ -4,10 +4,9 @@ export const navigationItems = [
     label: "Home",
     icon: "home",
     type: "simple",
-  },
-  {
-    id: "Laporan",
-    label: "Laporan",
+  },  {
+    id: "LaporanKeuangan",
+    label: "Laporan Keuangan",
     icon: "report",
     type: "simple",
   },

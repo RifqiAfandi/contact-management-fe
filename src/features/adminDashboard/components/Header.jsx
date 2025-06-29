@@ -5,8 +5,7 @@ const Header = ({ activeTab }) => {  const getHeaderTitle = (tab) => {
       case "CreateUser":
         return "👤 Buat User Baru";
       case "UserList":
-        return "👥 Daftar Pengguna";
-      case "Laporan":
+        return "👥 Daftar Pengguna";      case "LaporanKeuangan":
         return "📊 Laporan Keuangan";
       case "LaporanStok":
         return "📦 Laporan Stok";
