@@ -1,4 +1,4 @@
-export const BACKEND_URL = "http://localhost:5000";
+export const BACKEND_URL = import.meta.env.VITE_URL_BACKEND;
 
 export const PRODUCT_CATEGORIES = [
   { value: "Minuman", label: "Minuman" },
@@ -31,6 +31,6 @@ export const VALIDATION_RULES = {
   },
   IMAGE: {
     MAX_SIZE: 5 * 1024 * 1024, // 5MB
-    ALLOWED_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    ALLOWED_TYPES: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
   },
 };
