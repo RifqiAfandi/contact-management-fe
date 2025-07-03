@@ -17,7 +17,7 @@ const Sidebar = ({
     >
       {/* Sidebar Header */}
       <div className="sidebar-header">
-        <h2>Admin Panel</h2>
+        <h2>Contact Coffee</h2>
         <button className="toggle-btn" onClick={onToggleSidebar}>
           {renderIcon(isSidebarVisible ? "close" : "menu")}
         </button>

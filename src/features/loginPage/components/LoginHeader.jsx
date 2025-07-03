@@ -31,7 +31,7 @@ const LoginHeader = () => {
           Welcome
         </Typography>
         <Typography variant="h4" fontWeight="bold" textAlign="center" mb={1}>
-          Contact Caffe & Eatery
+          Contact Coffee
         </Typography>
       </motion.div>
     </>
