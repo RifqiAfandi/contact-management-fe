@@ -1,5 +1,5 @@
 import React from "react";
-import { renderIcon } from "../utils/iconUtils";
+import { renderIcon } from "../utils/IconUtils";
 
 const StatCard = ({ title, value, icon, iconColor }) => {
   return (
@@ -9,9 +9,7 @@ const StatCard = ({ title, value, icon, iconColor }) => {
           <div className="card-title">{title}</div>
           <div className="card-value">{value}</div>
         </div>
-        <div className={`card-icon ${iconColor}`}>
-          {renderIcon(icon)}
-        </div>
+        <div className={`card-icon ${iconColor}`}>{renderIcon(icon)}</div>
       </div>
     </div>
   );

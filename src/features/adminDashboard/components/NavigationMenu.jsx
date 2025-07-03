@@ -1,5 +1,5 @@
 import React from "react";
-import { renderIcon } from "../utils/iconUtils";
+import { renderIcon } from "../utils/IconUtils";
 import { navigationItems } from "../constants/navigationItems";
 
 const NavigationMenu = ({

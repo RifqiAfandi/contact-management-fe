@@ -1,5 +1,4 @@
 import React from "react";
-import { renderIcon } from "../utils/iconUtils";
 import StatsGrid from "./StatsGrid";
 import StockTable from "./StockTable";
 import ProductTable from "./ProductTable";
@@ -18,7 +17,8 @@ const ContentArea = ({ activeTab }) => {
             <StatsGrid />
             <LowStockNotification />
           </div>
-        );      case "LaporanKeuangan":
+        );
+      case "LaporanKeuangan":
         return (
           <div>
             <FinancialReport />
